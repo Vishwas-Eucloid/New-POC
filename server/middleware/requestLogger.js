@@ -2,12 +2,7 @@ const morgan = require('morgan');
 const fs = require('fs');
 const path = require('path');
 
-// Create logs directory if it doesn't exist
-const logsDir = path.join(__dirname, '..', 'logs');
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
-  console.log('Created logs directory:', logsDir);
-}
+// Note: On Vercel, logs are handled automatically. Using console for logging.
 
 // Custom format for logging
 morgan.token('reqId', (req) => req.reqId || 'unknown');
@@ -16,17 +11,9 @@ morgan.token('userId', (req) => req.user?.id || 'anonymous');
 // Create a simple log format
 const logFormat = ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent" reqId=:reqId userId=:userId';
 
-// Create write stream for combined logs
-const accessLogStream = fs.createWriteStream(
-  path.join(logsDir, 'access.log'), 
-  { flags: 'a' }
-);
-
-// Create write stream for error logs
-const errorLogStream = fs.createWriteStream(
-  path.join(logsDir, 'error.log'), 
-  { flags: 'a' }
-);
+// Use console streams for Vercel compatibility
+const accessLogStream = process.stdout;
+const errorLogStream = process.stderr;
 
 // Middleware to add request ID
 const addRequestId = async (req, res, next) => {
@@ -83,10 +70,7 @@ const securityLogger = (req, res, next) => {
         pattern: pattern.source
       };
       
-      fs.appendFileSync(
-        path.join(logsDir, 'security.log'), 
-        JSON.stringify(logEntry) + '\n'
-      );
+      console.error('SECURITY_ALERT:', JSON.stringify(logEntry));
     }
   }
   
