@@ -142,6 +142,23 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Root endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({
+    message: 'E-commerce API Server',
+    version: '1.0.0',
+    endpoints: {
+      products: '/api/products',
+      categories: '/api/categories',
+      users: '/api/users',
+      orders: '/api/orders',
+      search: '/api/search',
+      health: '/health'
+    },
+    requestId: req.reqId
+  });
+});
+
 // Rate limit info endpoint
 app.get('/rate-limit-info', (req, res) => {
   res.status(200).json({
@@ -170,9 +187,15 @@ app.use((err, req, res, next) => {
   handleServerError(err, res, `${req.method} ${req.path}`);
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log('Rate limiting and request logging enabled for all endpoints');
-  console.log('Logs are being written to server/logs/ directory');
-});
+// Export the app for Vercel serverless functions
+module.exports = app;
+
+// For local development
+if (require.main === module) {
+  const PORT = process.env.PORT || 3001;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log('Rate limiting and request logging enabled for all endpoints');
+    console.log('Logs are being written to server/logs/ directory');
+  });
+}
