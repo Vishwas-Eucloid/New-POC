@@ -2,23 +2,37 @@
 // Role of the component: Footer component
 // Name of the component: Footer.tsx
 // Developer: Aleksandar Kuzmanovic
-// Version: 1.0
-// Component call: <Footer />
-// Input parameters: no input parameters
-// Output: Footer component
+// Version: 1.1 (PostHog tracking added)
 // *********************
+
+"use client";
 
 import { navigation } from "@/lib/utils";
 import Image from "next/image";
 import React from "react";
+import posthog from "posthog-js";
 
 const Footer = () => {
+  const trackFooterClick = (
+    label: string,
+    href: string,
+    section: string
+  ) => {
+    posthog.capture("footer_link_clicked", {
+      label,
+      destination: href,
+      section,
+      component: "Footer",
+    });
+  };
+
   return (
     <footer className="bg-white" aria-labelledby="footer-heading">
       <div>
         <h2 id="footer-heading" className="sr-only">
           Footer
         </h2>
+
         <div className="mx-auto max-w-screen-2xl px-6 lg:px-8 pt-24 pb-14">
           <div className="xl:grid xl:grid-cols-3 xl:gap-8">
             <Image
@@ -28,8 +42,10 @@ const Footer = () => {
               height={250}
               className="h-auto w-auto"
             />
+
             <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
               <div className="md:grid md:grid-cols-2 md:gap-8">
+                {/* Sale */}
                 <div>
                   <h3 className="text-lg font-bold leading-6 text-blue-600">
                     Sale
@@ -39,6 +55,9 @@ const Footer = () => {
                       <li key={item.name}>
                         <a
                           href={item.href}
+                          onClick={() =>
+                            trackFooterClick(item.name, item.href, "Sale")
+                          }
                           className="text-sm leading-6 text-black hover:text-gray-700"
                         >
                           {item.name}
@@ -47,6 +66,8 @@ const Footer = () => {
                     ))}
                   </ul>
                 </div>
+
+                {/* About */}
                 <div className="mt-10 md:mt-0">
                   <h3 className="text-base font-bold leading-6 text-blue-600">
                     About Us
@@ -56,6 +77,9 @@ const Footer = () => {
                       <li key={item.name}>
                         <a
                           href={item.href}
+                          onClick={() =>
+                            trackFooterClick(item.name, item.href, "About Us")
+                          }
                           className="text-sm leading-6 text-black hover:text-gray-700"
                         >
                           {item.name}
@@ -65,7 +89,9 @@ const Footer = () => {
                   </ul>
                 </div>
               </div>
+
               <div className="md:grid md:grid-cols-2 md:gap-8">
+                {/* Buying */}
                 <div>
                   <h3 className="text-base font-bold leading-6 text-blue-600">
                     Buying
@@ -75,6 +101,9 @@ const Footer = () => {
                       <li key={item.name}>
                         <a
                           href={item.href}
+                          onClick={() =>
+                            trackFooterClick(item.name, item.href, "Buying")
+                          }
                           className="text-sm leading-6 text-black hover:text-gray-700"
                         >
                           {item.name}
@@ -83,6 +112,8 @@ const Footer = () => {
                     ))}
                   </ul>
                 </div>
+
+                {/* Support */}
                 <div className="mt-10 md:mt-0">
                   <h3 className="text-base font-bold leading-6 text-blue-600">
                     Support
@@ -92,6 +123,9 @@ const Footer = () => {
                       <li key={item.name}>
                         <a
                           href={item.href}
+                          onClick={() =>
+                            trackFooterClick(item.name, item.href, "Support")
+                          }
                           className="text-sm leading-6 text-black hover:text-gray-700"
                         >
                           {item.name}

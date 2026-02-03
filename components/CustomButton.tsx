@@ -2,13 +2,13 @@
 // Role of the component: Custom button component
 // Name of the component: CustomButton.tsx
 // Developer: Aleksandar Kuzmanovic
-// Version: 1.0
-// Component call: <CustomButton paddingX={paddingX} paddingY={paddingY} text={text} buttonType={buttonType} customWidth={customWidth} textSize={textSize} />
-// Input parameters: CustomButtonProps interface
-// Output: custom button component
+// Version: 1.1 (PostHog tracking added)
 // *********************
 
+"use client";
+
 import React from "react";
+import posthog from "posthog-js";
 
 interface CustomButtonProps {
   paddingX: number;
@@ -25,13 +25,22 @@ const CustomButton = ({
   text,
   buttonType,
   customWidth,
-  textSize
+  textSize,
 }: CustomButtonProps) => {
-
+  const handleClick = () => {
+    posthog.capture("custom_button_clicked", {
+      label: text,
+      button_type: buttonType,
+      width: customWidth,
+      text_size: textSize,
+      component: "CustomButton",
+    });
+  };
 
   return (
     <button
-      type={`${buttonType}`}
+      type={buttonType}
+      onClick={handleClick}
       className={`${customWidth !== "no" && `w-${customWidth}`} uppercase bg-white px-${paddingX} py-${paddingY} text-${textSize} border border-black border-gray-300 font-bold text-blue-600 shadow-sm hover:bg-black hover:bg-gray-100 focus:outline-none focus:ring-2`}
     >
       {text}

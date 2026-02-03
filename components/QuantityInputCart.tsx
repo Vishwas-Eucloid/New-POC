@@ -2,32 +2,52 @@
 // Role of the component: Quantity input for incrementing and decrementing product quantity on the cart page
 // Name of the component: QuantityInputCart.tsx
 // Developer: Aleksandar Kuzmanovic
-// Version: 1.0
-// Component call: <QuantityInputCart product={product} />
-// Input parameters: { product: ProductInCart }
-// Output: one number input and two buttons
+// Version: 1.1 (PostHog tracking added)
 // *********************
 
 "use client";
+
 import { ProductInCart, useProductStore } from "@/app/_zustand/store";
 import React, { useState } from "react";
-import { FaPlus } from "react-icons/fa6";
-import { FaMinus } from "react-icons/fa6";
+import { FaPlus, FaMinus } from "react-icons/fa6";
+import posthog from "posthog-js";
 
-const QuantityInputCart = ({ product } : { product: ProductInCart }) => {
+const QuantityInputCart = ({ product }: { product: ProductInCart }) => {
   const [quantityCount, setQuantityCount] = useState<number>(product.amount);
   const { updateCartAmount, calculateTotals } = useProductStore();
 
-  const handleQuantityChange = (actionName: string): void => {
+  const handleQuantityChange = (actionName: "plus" | "minus"): void => {
     if (actionName === "plus") {
-      setQuantityCount(() => quantityCount + 1);
-      updateCartAmount(product.id, quantityCount + 1);
-      calculateTotals();
+      const newValue = quantityCount + 1;
 
-      
+      posthog.capture("cart_quantity_changed", {
+        action: "increment",
+        from_quantity: quantityCount,
+        to_quantity: newValue,
+        product_id: product.id,
+        product_name: product.title,
+        price: product.price,
+        component: "QuantityInputCart",
+      });
+
+      setQuantityCount(newValue);
+      updateCartAmount(product.id, newValue);
+      calculateTotals();
     } else if (actionName === "minus" && quantityCount !== 1) {
-      setQuantityCount(() => quantityCount - 1);
-      updateCartAmount(product.id, quantityCount - 1);
+      const newValue = quantityCount - 1;
+
+      posthog.capture("cart_quantity_changed", {
+        action: "decrement",
+        from_quantity: quantityCount,
+        to_quantity: newValue,
+        product_id: product.id,
+        product_name: product.title,
+        price: product.price,
+        component: "QuantityInputCart",
+      });
+
+      setQuantityCount(newValue);
+      updateCartAmount(product.id, newValue);
       calculateTotals();
     }
   };
@@ -35,8 +55,7 @@ const QuantityInputCart = ({ product } : { product: ProductInCart }) => {
   return (
     <div>
       <label htmlFor="Quantity" className="sr-only">
-        {" "}
-        Quantity{" "}
+        Quantity
       </label>
 
       <div className="flex items-center justify-center rounded border border-gray-200 w-32">
