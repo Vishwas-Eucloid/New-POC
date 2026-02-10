@@ -4,7 +4,9 @@ export const apiClient = {
   baseUrl: config.apiBaseUrl,
   
   async request(endpoint: string, options: RequestInit = {}) {
-    const url = `${this.baseUrl}${endpoint}`;
+    const baseUrlClean = this.baseUrl.replace(/\/$/, '');
+    const endpointClean = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = `${baseUrlClean}${endpointClean}`;
     
     const defaultOptions: RequestInit = {
       headers: {
