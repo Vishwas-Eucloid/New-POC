@@ -35,15 +35,23 @@ export const useProductStore = create<State & Actions>()(
             (item) => item.id === newProduct.id
           );
           if (!cartItem) {
-            return { products: [...state.products, newProduct] };
+            state.products = [...state.products, newProduct];
           } else {
-            state.products.map((product) => {
+            state.products = state.products.map((product) => {
               if (product.id === cartItem.id) {
-                product.amount += newProduct.amount;
+                return { ...product, amount: product.amount + newProduct.amount };
               }
+              return product;
             });
           }
-          return { products: [...state.products] };
+          // Auto-calculate totals
+          let amount = 0;
+          let total = 0;
+          state.products.forEach((item) => {
+            amount += item.amount;
+            total += item.amount * item.price;
+          });
+          return { products: state.products, allQuantity: amount, total: total };
         });
       },
       clearCart: () => {
@@ -58,10 +66,17 @@ export const useProductStore = create<State & Actions>()(
       },
       removeFromCart: (id) => {
         set((state) => {
-          state.products = state.products.filter(
+          const products = state.products.filter(
             (product: ProductInCart) => product.id !== id
           );
-          return { products: state.products };
+          // Auto-calculate totals
+          let amount = 0;
+          let total = 0;
+          products.forEach((item) => {
+            amount += item.amount;
+            total += item.amount * item.price;
+          });
+          return { products, allQuantity: amount, total: total };
         });
       },
 
@@ -87,15 +102,24 @@ export const useProductStore = create<State & Actions>()(
 
           if (!cartItem) {
             return { products: [...state.products] };
-          } else {
-            state.products.map((product) => {
-              if (product.id === cartItem.id) {
-                product.amount = amount;
-              }
-            });
           }
-
-          return { products: [...state.products] };
+          
+          const products = state.products.map((product) => {
+            if (product.id === cartItem.id) {
+              return { ...product, amount };
+            }
+            return product;
+          });
+          
+          // Auto-calculate totals
+          let totalAmount = 0;
+          let total = 0;
+          products.forEach((item) => {
+            totalAmount += item.amount;
+            total += item.amount * item.price;
+          });
+          
+          return { products, allQuantity: totalAmount, total: total };
         });
       },
     }),
