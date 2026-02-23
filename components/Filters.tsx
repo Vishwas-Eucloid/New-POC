@@ -117,7 +117,7 @@ const Filters = () => {
         <input
           type="range"
           min={0}
-          max={3000}
+          max={5000000}
           step={10}
           value={inputCategory.priceFilter.value}
           className="range"
