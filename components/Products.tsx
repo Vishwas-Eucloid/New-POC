@@ -1,10 +1,12 @@
 // *********************
 // Role of the component: Showing products on the shop page with applied filter and sort
 // Name of the component: Products.tsx
-// Developer: Aleksandar Kuzmanovic
-// Version: 1.0
-// Component call: <Products params={params} searchParams={searchParams} />
-// Input parameters: { params, searchParams }: { params: { slug?: string[] }, searchParams: { [key: string]: string | string[] | undefined } }
+// Developer: Aleksandar Kuzmanovic (modified by Copilot)
+// Version: 1.1 – now accepts categorySlug prop and supports query fallback
+// Component call: <Products categorySlug={slug} searchParams={searchParams} />
+// Input parameters: { categorySlug, searchParams }
+//    categorySlug - optional string extracted from the catch‑all `slug` or query
+//    searchParams - raw query string parameters from the URL
 // Output: products grid
 // *********************
 
@@ -12,7 +14,12 @@ import React from "react";
 import ProductItem from "./ProductItem";
 import apiClient from "@/lib/api";
 
-const Products = async ({ params, searchParams }: { params: { slug?: string[] }, searchParams: { [key: string]: string | string[] | undefined } }) => {
+interface ProductsProps {
+  categorySlug: string | null;
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+const Products = async ({ categorySlug, searchParams }: ProductsProps) => {
   // getting all data from URL slug and preparing everything for sending GET request
   const inStockNum = searchParams?.inStock === "true" ? 1 : 0;
   const outOfStockNum = searchParams?.outOfStock === "true" ? 1 : 0;
@@ -41,19 +48,23 @@ const Products = async ({ params, searchParams }: { params: { slug?: string[] },
   let products = [];
 
   try {
-    // Extract category slug from params array
-    const categorySlug = params?.slug && params.slug.length > 0 
-      ? params.slug[0] 
-      : null;
-    
+    // the slug may come from the prop (preferred) or, as a fallback,
+    // from the explicit `category` query string. clients sometimes
+    // navigate with queries when the catch-all param is lost.
+    let slug = categorySlug;
+    if (!slug && typeof searchParams.category === "string") {
+      slug = searchParams.category;
+    }
+
     // sending API request with filtering, sorting and pagination for getting all products
-    const data = await apiClient.get(`/api/products?filters[price][$lte]=${
+    const data = await apiClient.get(
+      `/api/products?filters[price][$lte]=${
         searchParams?.price || 3000
       }&filters[rating][$gte]=${
         Number(searchParams?.rating) || 0
       }&filters[inStock][$${stockMode}]=1${
-        categorySlug
-          ? `&filters[category][$equals]=${encodeURIComponent(categorySlug)}`
+        slug
+          ? `&filters[category][$equals]=${encodeURIComponent(slug)}`
           : ""
       }&sort=${searchParams?.sort || 'defaultSort'}&page=${page}`
     );

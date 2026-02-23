@@ -26,8 +26,20 @@ const CategoryItem = ({ title, children, href }: CategoryItemProps) => {
     });
   };
 
+  // derive slug from the href path so we can also include it as a query
+  // parameter; this gives us a second source for the category when the
+  // catch‑all param is ever dropped during navigation.
+  const slug = href.split("/").filter(Boolean).pop() || "";
+
   return (
-    <Link href={href} onClick={handleCategoryClick}>
+    <Link
+      // object-form href lets us provide both pathname and query
+      href={{
+        pathname: href,
+        query: { category: slug },
+      }}
+      onClick={handleCategoryClick}
+    >
       <div className="flex flex-col items-center gap-y-2 cursor-pointer bg-white py-5 text-black hover:bg-gray-100">
         {children}
         <h3 className="font-semibold text-xl">{title}</h3>
