@@ -48,26 +48,26 @@ const Products = async ({ categorySlug, searchParams }: ProductsProps) => {
   let products = [];
 
   try {
-    // the slug may come from the prop (preferred) or, as a fallback,
-    // from the explicit `category` query string. clients sometimes
-    // navigate with queries when the catch-all param is lost.
+    // determine which category we should filter by; this value will
+    // be logged so that it's easier to debug client behavior.
     let slug = categorySlug;
     if (!slug && typeof searchParams.category === "string") {
       slug = searchParams.category;
     }
 
-    // sending API request with filtering, sorting and pagination for getting all products
-    const data = await apiClient.get(
-      `/api/products?filters[price][$lte]=${
-        searchParams?.price || 3000
-      }&filters[rating][$gte]=${
-        Number(searchParams?.rating) || 0
-      }&filters[inStock][$${stockMode}]=1${
-        slug
-          ? `&filters[category][$equals]=${encodeURIComponent(slug)}`
-          : ""
-      }&sort=${searchParams?.sort || 'defaultSort'}&page=${page}`
-    );
+    // build the url before firing the request so we can inspect it in devtools
+    const url = `/api/products?filters[price][$lte]=${
+      searchParams?.price || 3000
+    }&filters[rating][$gte]=${
+      Number(searchParams?.rating) || 0
+    }&filters[inStock][$${stockMode}]=1${
+      slug ? `&filters[category][$equals]=${encodeURIComponent(slug)}` : ""
+    }&sort=${searchParams?.sort || 'defaultSort'}&page=${page}`;
+
+    // debug output for developers
+    console.debug('Products component fetching', url, 'slug=', slug);
+
+    const data = await apiClient.get(url);
 
     if (!data.ok) {
       console.error('Failed to fetch products:', data.statusText);

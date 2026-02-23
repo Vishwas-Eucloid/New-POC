@@ -87,17 +87,22 @@ const getAllProducts = asyncHandler(async (request, response) => {
     const validatedPage = (page && page > 0) ? page : 1;
 
     if (dividerLocation !== -1) {
-      const queryArray = request.url
-        .substring(dividerLocation + 1, request.url.length)
-        .split("&");
+      // split off raw query string and iterate each component.  we
+    // decode each chunk to turn %24 back into `$`, %5B/%5D back into
+    // brackets etc.  the previous implementation operated on the
+    // percent-encoded string which meant operators like $lte never
+    // matched and filters were ignored.
+    const rawQuery = request.url.substring(dividerLocation + 1);
+    const queryArray = rawQuery.length ? rawQuery.split("&") : [];
 
       let filterType;
       let filterArray = [];
 
       for (let i = 0; i < queryArray.length; i++) {
-        // Security: Use more robust parsing with validation
-        const queryParam = queryArray[i];
-        
+        // decode the parameter so we can look for literal characters
+        // like "$" and ")".
+        const queryParam = decodeURIComponent(queryArray[i]);
+
         // Extract filter type safely
         if (queryParam.includes("filters")) {
           if (queryParam.includes("price")) {
@@ -154,9 +159,13 @@ const getAllProducts = asyncHandler(async (request, response) => {
           }
         }
       }
-      
+
       // Security: Build filter object using safe function
       filterObj = buildSafeFilterObject(filterArray);
+
+      // DEBUG: log the resulting filter object so we can verify category is
+      // being recognized (remove or guard this in production)
+      console.log('Products.getAllProducts filterObj:', filterObj);
     }
 
     let whereClause = { ...filterObj };
