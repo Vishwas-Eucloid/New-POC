@@ -35,13 +35,20 @@ const Filters = () => {
 
   // Sync filters to URL (unchanged)
   useEffect(() => {
-    const params = new URLSearchParams();
+    // start from existing search params so we don't wipe out unrelated
+    // values such as category (or any future additions)
+    const currentParams = new URLSearchParams(window.location.search);
+
+    // maintain category/query if already present
+    const params = new URLSearchParams(currentParams.toString());
+
     params.set("outOfStock", inputCategory.outOfStock.isChecked.toString());
     params.set("inStock", inputCategory.inStock.isChecked.toString());
     params.set("rating", inputCategory.ratingFilter.value.toString());
     params.set("price", inputCategory.priceFilter.value.toString());
     params.set("sort", sortBy);
     params.set("page", page.toString());
+
     replace(`${pathname}?${params}`);
   }, [inputCategory, sortBy, page]);
 
