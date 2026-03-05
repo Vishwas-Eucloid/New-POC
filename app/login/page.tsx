@@ -5,14 +5,14 @@ import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-
-
+ 
+ 
 const LoginPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState("");
   const { data: session, status: sessionStatus } = useSession();
-
+ 
   useEffect(() => {
     // Check if session expired
     const expired = searchParams.get('expired');
@@ -20,36 +20,36 @@ const LoginPage = () => {
       setError("Your session has expired. Please log in again.");
       toast.error("Your session has expired. Please log in again.");
     }
-
+ 
     // if user has already logged in redirect to home page
     if (sessionStatus === "authenticated") {
       router.replace("/");
     }
   }, [sessionStatus, router, searchParams]);
-
+ 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     const email = e.target[0].value;
     const password = e.target[1].value;
-
+ 
     if (!isValidEmailAddressFormat(email)) {
       setError("Email is invalid");
       toast.error("Email is invalid");
       return;
     }
-
+ 
     if (!password || password.length < 8) {
       setError("Password is invalid");
       toast.error("Password is invalid");
       return;
     }
-
+ 
     const res = await signIn("credentials", {
       redirect: false,
       email,
       password,
     });
-
+ 
     if (res?.error) {
       setError("Invalid email or password");
       toast.error("Invalid email or password");
@@ -59,7 +59,7 @@ const LoginPage = () => {
       toast.success("Successful login");
     }
   };
-
+ 
   if (sessionStatus === "loading") {
     return <h1>Loading...</h1>;
   }
@@ -72,7 +72,7 @@ const LoginPage = () => {
             Sign in to your account
           </h2>
         </div>
-
+ 
         <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-[480px]">
           <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
             <form className="space-y-6" onSubmit={handleSubmit}>
@@ -94,7 +94,7 @@ const LoginPage = () => {
                   />
                 </div>
               </div>
-
+ 
               <div>
                 <label
                   htmlFor="password"
@@ -113,7 +113,7 @@ const LoginPage = () => {
                   />
                 </div>
               </div>
-
+ 
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <input
@@ -129,17 +129,17 @@ const LoginPage = () => {
                     Remember me
                   </label>
                 </div>
-
-                <div className="text-sm leading-6">
+ 
+                {/* <div className="text-sm leading-6">
                   <a
                     href="#"
                     className="font-semibold text-black hover:text-black"
                   >
                     Forgot password?
                   </a>
-                </div>
+                </div> */}
               </div>
-
+ 
               <div>
                 <CustomButton
                   buttonType="submit"
@@ -151,7 +151,7 @@ const LoginPage = () => {
                 />
               </div>
             </form>
-
+ 
             <div>
               <p className="text-red-600 text-center text-[16px] my-4">
                 {error && error}
@@ -163,5 +163,5 @@ const LoginPage = () => {
     </div>
   );
 };
-
+ 
 export default LoginPage;

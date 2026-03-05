@@ -7,18 +7,18 @@
 // Input parameters: { product: Product }
 // Output: Single product tabs containing product description, main product info and reviews
 // *********************
-
+ 
 "use client";
-
+ 
 import React, { useState } from "react";
-import RatingPercentElement from "./RatingPercentElement";
-import SingleReview from "./SingleReview";
+// import RatingPercentElement from "./RatingPercentElement";
+// import SingleReview from "./SingleReview";
 import { formatCategoryName } from "@/utils/categoryFormating";
 import { sanitize, sanitizeHtml } from "@/lib/sanitize";
-
+ 
 const ProductTabs = ({ product }: { product: Product }) => {
   const [currentProductTab, setCurrentProductTab] = useState<number>(0);
-
+ 
   return (
     <div className="px-5 text-black">
       <div role="tablist" className="tabs tabs-bordered">
@@ -43,14 +43,14 @@ const ProductTabs = ({ product }: { product: Product }) => {
       </div>
       <div className="pt-5">
         {currentProductTab === 0 && (
-          <div 
+          <div
             className="text-lg max-sm:text-base max-sm:text-sm"
-            dangerouslySetInnerHTML={{ 
-              __html: sanitizeHtml(product?.description) 
+            dangerouslySetInnerHTML={{
+              __html: sanitizeHtml(product?.description)
             }}
           />
         )}
-
+ 
         {currentProductTab === 1 && (
           <div className="overflow-x-auto">
             <table className="table text-xl text-center max-[500px]:text-base">
@@ -74,6 +74,23 @@ const ProductTabs = ({ product }: { product: Product }) => {
                   <th>Color:</th>
                   <td>Silver, LightSlateGray, Blue</td>
                 </tr>
+                <tr>
+                  <th>Rating:</th>
+                  <td>
+                    <div className="rating rating-sm">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <input
+                          key={star}
+                          type="radio"
+                          name="rating-2"
+                          className="mask mask-star-2 bg-orange-400"
+                          checked={Math.round(product?.rating || 0) === star}
+                          readOnly
+                        />
+                      ))}
+                    </div>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -82,5 +99,5 @@ const ProductTabs = ({ product }: { product: Product }) => {
     </div>
   );
 };
-
+ 
 export default ProductTabs;
