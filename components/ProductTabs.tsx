@@ -7,35 +7,33 @@
 // Input parameters: { product: Product }
 // Output: Single product tabs containing product description, main product info and reviews
 // *********************
- 
+
 "use client";
- 
+
 import React, { useState } from "react";
 // import RatingPercentElement from "./RatingPercentElement";
 // import SingleReview from "./SingleReview";
 import { formatCategoryName } from "@/utils/categoryFormating";
 import { sanitize, sanitizeHtml } from "@/lib/sanitize";
- 
+
 const ProductTabs = ({ product }: { product: Product }) => {
   const [currentProductTab, setCurrentProductTab] = useState<number>(0);
- 
+
   return (
     <div className="px-5 text-black">
       <div role="tablist" className="tabs tabs-bordered">
         <a
           role="tab"
-          className={`tab text-lg text-black pb-8 max-[500px]:text-base max-[400px]:text-sm max-[370px]:text-xs ${
-            currentProductTab === 0 && "tab-active"
-          }`}
+          className={`tab text-lg text-black pb-8 max-[500px]:text-base max-[400px]:text-sm max-[370px]:text-xs ${currentProductTab === 0 && "tab-active"
+            }`}
           onClick={() => setCurrentProductTab(0)}
         >
           Description
         </a>
         <a
           role="tab"
-          className={`tab text-black text-lg pb-8 max-[500px]:text-base max-[400px]:text-sm max-[370px]:text-xs ${
-            currentProductTab === 1 && "tab-active"
-          }`}
+          className={`tab text-black text-lg pb-8 max-[500px]:text-base max-[400px]:text-sm max-[370px]:text-xs ${currentProductTab === 1 && "tab-active"
+            }`}
           onClick={() => setCurrentProductTab(1)}
         >
           Additional info
@@ -50,7 +48,7 @@ const ProductTabs = ({ product }: { product: Product }) => {
             }}
           />
         )}
- 
+
         {currentProductTab === 1 && (
           <div className="overflow-x-auto">
             <table className="table text-xl text-center max-[500px]:text-base">
@@ -69,11 +67,35 @@ const ProductTabs = ({ product }: { product: Product }) => {
                       : "No category"}
                   </td>
                 </tr>
-                {/* row 3 */}
-                <tr>
-                  <th>Color:</th>
-                  <td>Silver, LightSlateGray, Blue</td>
-                </tr>
+                {(() => {
+                  let attributes: { name: string; value: string }[] = [];
+                  try {
+                    const raw = (product as any)?.variant_attributes;
+                    if (raw) {
+                      const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+                      if (Array.isArray(parsed)) {
+                        attributes = parsed.map(attr => ({
+                          name: String(attr.name || attr.key || ""),
+                          value: String(attr.value || attr)
+                        }));
+                      } else if (typeof parsed === "object" && parsed !== null) {
+                        attributes = Object.entries(parsed).map(([key, value]) => ({
+                          name: key.charAt(0).toUpperCase() + key.slice(1),
+                          value: String(value)
+                        }));
+                      }
+                    }
+                  } catch (e) {
+                    console.error("Failed to parse variant_attributes", e);
+                  }
+
+                  return attributes.slice(0, 5).map((attr, index) => (
+                    <tr key={`variant-attr-${index}`}>
+                      <th>{sanitize(attr.name)}:</th>
+                      <td>{sanitize(attr.value)}</td>
+                    </tr>
+                  ));
+                })()}
                 <tr>
                   <th>Rating:</th>
                   <td>
@@ -99,5 +121,5 @@ const ProductTabs = ({ product }: { product: Product }) => {
     </div>
   );
 };
- 
+
 export default ProductTabs;

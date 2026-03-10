@@ -26,12 +26,27 @@ function validateRow(row) {
   if (!Number.isFinite(inStock) || inStock < 0)
     errs.push("inStock must be a non-negative number");
 
+  // Validate variant_attributes if provided (CSV may contain a JSON string)
+  const variantRaw = row.variant_attributes ?? row.variantAttributes ?? null;
+  let parsedVariant = null;
+  if (variantRaw !== null && variantRaw !== undefined && String(variantRaw).trim() !== "") {
+    if (typeof variantRaw === "object") {
+      parsedVariant = variantRaw;
+    } else {
+      try {
+        parsedVariant = JSON.parse(String(variantRaw));
+      } catch (e) {
+        errs.push("variant_attributes must be valid JSON");
+      }
+    }
+  }
+
   if (errs.length) return { ok: false, error: errs.join(", ") };
 
   clean.title = title;
   clean.slug = slug;
   // Convert price to cents (integer) since schema uses Int
-  clean.price = Math.floor(price/90);
+  clean.price = Math.floor(price / 90);
   clean.categoryId = categoryId;
   clean.inStock = Math.floor(inStock); // Integer stock quantity
 
@@ -40,6 +55,9 @@ function validateRow(row) {
     : null;
   clean.description = row.description ? String(row.description).trim() : null;
   clean.mainImage = row.mainImage ? String(row.mainImage).trim() : null;
+
+  // Add parsed variant attributes (or null)
+  clean.variant_attributes = parsedVariant ?? null;
 
   return { ok: true, data: clean };
 }
@@ -108,13 +126,13 @@ async function createBatchWithItems(tx, batchId, validRows, errorRows, merchantI
 
   let success = 0;
   let failed = 0;
-  
+
   // Collect items to batch create at the end
   const itemsToCreate = [];
 
   // Pre-process rows to separate valid+resolved from invalid
   const rowsWithResolvedCategory = [];
-  
+
   for (const row of validRows) {
     // Try to resolve categoryId (could be UUID or category name)
     const resolvedCategoryId =
@@ -138,7 +156,7 @@ async function createBatchWithItems(tx, batchId, validRows, errorRows, merchantI
       failed++;
       continue;
     }
-    
+
     rowsWithResolvedCategory.push({ ...row, resolvedCategoryId });
   }
 
@@ -155,6 +173,8 @@ async function createBatchWithItems(tx, batchId, validRows, errorRows, merchantI
       categoryId: row.resolvedCategoryId,
       merchantId: resolvedMerchantId,
       inStock: row.inStock,
+      // Include the new JSON column for product
+      variant_attributes: row.variant_attributes ?? null,
     }));
 
     try {
@@ -171,7 +191,7 @@ async function createBatchWithItems(tx, batchId, validRows, errorRows, merchantI
         },
         select: { id: true, slug: true },
       });
-      
+
       fetchedProducts.forEach((p) => {
         createdBySlug.set(p.slug, p.id);
       });

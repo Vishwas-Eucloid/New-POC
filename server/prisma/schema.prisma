@@ -33,6 +33,7 @@ model Product {
   // Back relation for bulk upload items
   bulkUploadItems bulk_upload_item[] @relation("ProductBulkItems")
   CartItem        CartItem[]
+   variant_attributes Json? 
 }
 
 model Image {
