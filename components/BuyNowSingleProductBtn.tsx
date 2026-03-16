@@ -28,6 +28,8 @@ const BuyNowSingleProductBtn = ({
       price: product?.price,
       image: product?.mainImage,
       amount: quantityCount,
+      discountedPrice: product?.discountedPrice,
+      hasDiscount: product?.hasDiscount,
     });
 
     calculateTotals();

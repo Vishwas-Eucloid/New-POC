@@ -25,6 +25,8 @@ const Products = async ({ categorySlug, searchParams }: ProductsProps) => {
   // determine checkbox states as booleans (simpler than numeric flags)
   const inStockChecked = searchParams?.inStock === "true";
   const outOfStockChecked = searchParams?.outOfStock === "true";
+  const discountedChecked = searchParams?.discounted === "true";
+  const nonDiscountedChecked = searchParams?.nonDiscounted === "true";
   const page = searchParams?.page ? Number(searchParams?.page) : 1;
 
   // build a filter segment for the stock field.  The API is simpler when we
@@ -40,6 +42,13 @@ const Products = async ({ categorySlug, searchParams }: ProductsProps) => {
     stockFilterParams = "&filters[inStock][$equals]=0";
   }
 
+  let discountFilterParams = "";
+  if (discountedChecked && !nonDiscountedChecked) {
+    discountFilterParams = "&filters[hasDiscount][$equals]=true";
+  } else if (!discountedChecked && nonDiscountedChecked) {
+    discountFilterParams = "&filters[hasDiscount][$equals]=false";
+  }
+
   let products = [];
 
   try {
@@ -53,7 +62,7 @@ const Products = async ({ categorySlug, searchParams }: ProductsProps) => {
     // build the url before firing the request so we can inspect it in devtools
     const url = `/api/products?filters[price][$lte]=${searchParams?.price || 10000
       }&filters[rating][$gte]=${Number(searchParams?.rating) || 0
-      }${stockFilterParams}${slug ? `&filters[category][$equals]=${encodeURIComponent(slug)}` : ""
+      }${stockFilterParams}${discountFilterParams}${slug ? `&filters[category][$equals]=${encodeURIComponent(slug)}` : ""
       }&sort=${searchParams?.sort || 'defaultSort'}&page=${page}`;
 
     // debug output for developers

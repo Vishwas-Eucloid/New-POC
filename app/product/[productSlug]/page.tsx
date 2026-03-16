@@ -4,6 +4,7 @@ import {
 
   ProductTabs,
   SingleProductDynamicFields,
+  PriceRenderer,
   
 } from "@/components";
 import apiClient from "@/lib/api";
@@ -78,7 +79,7 @@ const SingleProductPage = async ({ params }: SingleProductPageProps) => {
           <div className="flex flex-col gap-y-7 text-black max-[500px]:text-center">
         
             <h1 className="text-3xl">{sanitize(product?.title)}</h1>
-            <p className="text-xl font-semibold">${product?.price}</p>
+            <PriceRenderer price={product?.price} discountedPrice={product?.discountedPrice} hasDiscount={product?.hasDiscount} color="black" fontSize="2xl" />
             <StockAvailabillity stock={94} inStock={product?.inStock} />
             <SingleProductDynamicFields product={product} />
             

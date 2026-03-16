@@ -12,6 +12,7 @@ import React from "react";
 import Link from "next/link";
 import posthog from "posthog-js";
 import { sanitize } from "@/lib/sanitize";
+import { PriceRenderer } from "@/components";
 
 const ProductItem = ({
   product,
@@ -77,15 +78,13 @@ const ProductItem = ({
       </Link>
 
       {/* Price */}
-      <p
-        className={
-          color === "black"
-            ? "text-lg text-black font-semibold"
-            : "text-lg text-white font-semibold"
-        }
-      >
-        ${product.price}
-      </p>
+      <PriceRenderer 
+        price={product.price}
+        discountedPrice={product.discountedPrice}
+        hasDiscount={product.hasDiscount || !!product.originalPrice} // preserve originalPrice for backward compat if Offers page manually injected it
+        color={color}
+        fontSize="lg"
+      />
 
       {/* CTA */}
       <Link

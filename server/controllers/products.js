@@ -1,8 +1,9 @@
 const prisma = require("../utills/db"); // ✅ Use shared connection with SSL
 const { asyncHandler, handleServerError, AppError } = require("../utills/errorHandler");
+const { applyOffersToProducts, getActiveOfferTargetIds } = require("../services/pricingService");
 
 // Security: Define whitelists for allowed filter types and operators
-const ALLOWED_FILTER_TYPES = ['price', 'rating', 'category', 'inStock', 'outOfStock'];
+const ALLOWED_FILTER_TYPES = ['price', 'rating', 'category', 'inStock', 'outOfStock', 'hasDiscount'];
 const ALLOWED_OPERATORS = ['gte', 'lte', 'gt', 'lt', 'equals', 'contains'];
 const ALLOWED_SORT_VALUES = ['defaultSort', 'titleAsc', 'titleDesc', 'lowPrice', 'highPrice'];
 
@@ -31,6 +32,8 @@ function validateAndSanitizeFilterValue(filterType, filterValue) {
       return typeof filterValue === 'string' && filterValue.trim().length > 0 
         ? filterValue.trim() 
         : null;
+    case 'hasDiscount':
+      return filterValue === 'true' ? true : filterValue === 'false' ? false : null;
     default:
       return null;
   }
@@ -115,6 +118,8 @@ const getAllProducts = asyncHandler(async (request, response) => {
             filterType = "inStock";
           } else if (queryParam.includes("outOfStock")) {
             filterType = "outOfStock";
+          } else if (queryParam.includes("hasDiscount")) {
+            filterType = "hasDiscount";
           } else {
             // Skip unknown filter types
             continue;
@@ -136,6 +141,8 @@ const getAllProducts = asyncHandler(async (request, response) => {
           // Extract filter value based on type
           if (filterType === "category") {
             filterValue = queryParam.substring(queryParam.indexOf("=") + 1);
+          } else if (filterType === "hasDiscount") {
+            filterValue = queryParam.substring(queryParam.indexOf("=") + 1); // allow raw string "true"/"false" so validation can parse it above
           } else {
             const numValue = parseInt(queryParam.substring(queryParam.indexOf("=") + 1));
             filterValue = isNaN(numValue) ? null : numValue;
@@ -173,6 +180,34 @@ const getAllProducts = asyncHandler(async (request, response) => {
     // Security: Handle category filter separately with validation
     if (filterObj.category && filterObj.category.equals) {
       delete whereClause.category;
+    }
+
+    // Process global discount filtering without modifying schema
+    if (filterObj.hasDiscount && filterObj.hasDiscount.equals !== undefined) {
+      const isDiscounted = filterObj.hasDiscount.equals;
+      delete whereClause.hasDiscount;
+
+      // Ensure we dynamically compute targeted arrays securely in one DB sweep
+      const { targetedProductIds, targetedCategoryIds } = await getActiveOfferTargetIds();
+
+      if (isDiscounted === true) {
+        whereClause.AND = [
+          ...(whereClause.AND || []),
+          {
+            OR: [
+              { id: { in: targetedProductIds } },
+              { categoryId: { in: targetedCategoryIds } },
+            ],
+          },
+        ];
+      } else if (isDiscounted === false) {
+        // Find everything strictly NOT in those target boundaries
+        whereClause.AND = [
+          ...(whereClause.AND || []),
+          { id: { notIn: targetedProductIds } },
+          { categoryId: { notIn: targetedCategoryIds } },
+        ];
+      }
     }
 
     // Security: Build sort object safely
@@ -293,7 +328,10 @@ const getAllProducts = asyncHandler(async (request, response) => {
       }
     }
 
-    return response.json(products);
+    // Apply global pricing formatting
+    const formattedProducts = await applyOffersToProducts(products);
+
+    return response.json(formattedProducts);
   }
 });
 
@@ -466,7 +504,10 @@ const searchProducts = asyncHandler(async (request, response) => {
     },
   });
 
-  return response.json(products);
+  // Apply global pricing formatting
+  const formattedProducts = await applyOffersToProducts(products);
+
+  return response.json(formattedProducts);
 });
 
 const getProductById = asyncHandler(async (request, response) => {
@@ -488,8 +529,10 @@ const getProductById = asyncHandler(async (request, response) => {
   if (!product) {
     throw new AppError("Product not found", 404);
   }
+  // Apply global pricing formatting for the single product by passing it as an array
+  const formattedProductResult = await applyOffersToProducts([product]);
   
-  return response.status(200).json(product);
+  return response.status(200).json(formattedProductResult[0]);
 });
 
 module.exports = {

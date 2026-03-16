@@ -15,6 +15,7 @@ import React, { useState } from "react";
 // import SingleReview from "./SingleReview";
 import { formatCategoryName } from "@/utils/categoryFormating";
 import { sanitize, sanitizeHtml } from "@/lib/sanitize";
+import PriceRenderer from "./PriceRenderer";
 
 const ProductTabs = ({ product }: { product: Product }) => {
   const [currentProductTab, setCurrentProductTab] = useState<number>(0);
@@ -65,6 +66,19 @@ const ProductTabs = ({ product }: { product: Product }) => {
                     {product?.category?.name
                       ? sanitize(formatCategoryName(product?.category?.name))
                       : "No category"}
+                  </td>
+                </tr>
+                {/* row 2.5 - Price */}
+                <tr>
+                  <th>Price:</th>
+                  <td className="flex justify-center">
+                    <PriceRenderer 
+                      price={product?.price} 
+                      discountedPrice={product?.discountedPrice} 
+                      hasDiscount={product?.hasDiscount} 
+                      fontSize="xl" 
+                      color="black" 
+                    />
                   </td>
                 </tr>
                 {(() => {

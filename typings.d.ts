@@ -10,6 +10,9 @@ interface Product {
   categoryId: string;
   category: {name: string}?;
   inStock: number;
+  originalPrice?: number;
+  discountedPrice?: number;
+  hasDiscount?: boolean;
 }
 
 interface Merchant {

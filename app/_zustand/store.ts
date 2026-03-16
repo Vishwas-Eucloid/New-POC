@@ -7,6 +7,8 @@ export type ProductInCart = {
   price: number;
   image: string;
   amount: number;
+  discountedPrice?: number;
+  hasDiscount?: boolean;
 };
 
 export type State = {
@@ -49,7 +51,7 @@ export const useProductStore = create<State & Actions>()(
           let total = 0;
           state.products.forEach((item) => {
             amount += item.amount;
-            total += item.amount * item.price;
+            total += item.amount * (item.hasDiscount && item.discountedPrice !== undefined ? item.discountedPrice : item.price);
           });
           return { products: state.products, allQuantity: amount, total: total };
         });
@@ -74,7 +76,7 @@ export const useProductStore = create<State & Actions>()(
           let total = 0;
           products.forEach((item) => {
             amount += item.amount;
-            total += item.amount * item.price;
+            total += item.amount * (item.hasDiscount && item.discountedPrice !== undefined ? item.discountedPrice : item.price);
           });
           return { products, allQuantity: amount, total: total };
         });
@@ -86,7 +88,7 @@ export const useProductStore = create<State & Actions>()(
           let total = 0;
           state.products.forEach((item) => {
             amount += item.amount;
-            total += item.amount * item.price;
+            total += item.amount * (item.hasDiscount && item.discountedPrice !== undefined ? item.discountedPrice : item.price);
           });
 
           return {
@@ -116,7 +118,7 @@ export const useProductStore = create<State & Actions>()(
           let total = 0;
           products.forEach((item) => {
             totalAmount += item.amount;
-            total += item.amount * item.price;
+            total += item.amount * (item.hasDiscount && item.discountedPrice !== undefined ? item.discountedPrice : item.price);
           });
           
           return { products, allQuantity: totalAmount, total: total };

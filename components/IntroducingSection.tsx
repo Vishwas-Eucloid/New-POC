@@ -10,6 +10,8 @@
 import Link from "next/link";
 import React, { useEffect } from "react";
 import posthog from "posthog-js";
+import { useFeatureFlagVariantKey } from 'posthog-js/react';
+import { useRouter } from 'next/navigation';
 
 const IntroducingSection = () => {
   // Track section impression once
@@ -19,12 +21,12 @@ const IntroducingSection = () => {
     });
   }, []);
 
-  const handleCtaClick = () => {
-    posthog.capture("introducing_section_cta_clicked", {
-      cta: "shop_now",
-      destination: "/shop",
-      component: "IntroducingSection",
-    });
+  const variant = useFeatureFlagVariantKey('test1');
+  const router = useRouter();
+
+  const handleClick = () => {
+    posthog.capture('shop_now_clicked');
+    router.push('/shop');
   };
 
   return (
@@ -44,13 +46,13 @@ const IntroducingSection = () => {
             The best electronics for tech lovers.
           </p>
 
-          <Link
-            href="/shop"
-            onClick={handleCtaClick}
-            className="block text-blue-600 bg-white font-bold px-12 py-3 text-xl hover:bg-gray-100 w-96 mt-2 max-md:text-lg max-md:w-72 max-[480px]:w-60 mx-auto"
+          <button
+            onClick={handleClick}
+            className={`block font-bold px-12 py-3 text-xl hover:bg-gray-100 w-96 mt-2 max-md:text-lg max-md:w-72 max-[480px]:w-60 mx-auto ${variant === 'test' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+              }`}
           >
             SHOP NOW
-          </Link>
+          </button>
         </div>
       </div>
     </div>

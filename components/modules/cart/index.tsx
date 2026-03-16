@@ -7,6 +7,7 @@ import Link from "next/link";
 import { FaCheck, FaCircleQuestion, FaClock, FaXmark } from "react-icons/fa6";
 import QuantityInputCart from "@/components/QuantityInputCart";
 import { sanitize } from "@/lib/sanitize";
+import { PriceRenderer } from "@/components";
 
 export const CartModule = () => {
 
@@ -72,9 +73,14 @@ export const CartModule = () => {
                           <p className="ml-4 border-l border-gray-200 pl-4 text-gray-500">{product.size}</p>
                         ) : null}
                       </div> */}
-                    <p className="mt-1 text-sm font-medium text-gray-900">
-                      ${product.price}
-                    </p>
+                    <div className="mt-1">
+                      <PriceRenderer 
+                        price={product.price}
+                        discountedPrice={product.discountedPrice}
+                        hasDiscount={product.hasDiscount}
+                        fontSize="sm"
+                      />
+                    </div>
                   </div>
 
                   <div className="mt-4 sm:mt-0 sm:pr-9">

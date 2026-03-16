@@ -1,4 +1,5 @@
 const prisma = require("../utills/db"); // ✅ Use shared connection
+const { applyOffersToProducts } = require("../services/pricingService");
 
 async function getProductBySlug(request, response) {
   const { slug } = request.params;
@@ -15,7 +16,11 @@ async function getProductBySlug(request, response) {
   if (!foundProduct) {
     return response.status(404).json({ error: "Product not found" });
   }
-  return response.status(200).json(foundProduct);
+
+  // Pass it as an array to the global formatter to maintain identical schema enrichment
+  const formattedProductResult = await applyOffersToProducts([foundProduct]);
+
+  return response.status(200).json(formattedProductResult[0]);
 }
 
 module.exports = { getProductBySlug };

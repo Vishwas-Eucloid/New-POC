@@ -15,6 +15,7 @@ export { default as Range } from "./Range";
 export { default as RangeWithLabels } from "./RangeWithLabels";
 export { default as Breadcrumb } from "./Breadcrumb";
 export { default as Products } from "./Products";
+export { default as OfferedProducts } from "./OfferedProducts";
 export { default as Pagination } from "./Pagination";
 export { default as QuantityInput } from "./QuantityInput";
 export { default as UrgencyText } from "./UrgencyText";
@@ -22,6 +23,8 @@ export { default as StockAvailabillity } from "./StockAvailabillity";
 export { default as ColorInput } from "./ColorInput";
 
 export { default as ProductTabs } from "./ProductTabs";
+export { default as PriceRenderer } from "./PriceRenderer";
+export { default as ExploreOffersSection } from "./ExploreOffersSection";
 
 
 export { default as CustomButton } from "./CustomButton";

@@ -15,6 +15,8 @@ import posthog from "posthog-js";
 interface InputCategory {
   inStock: { text: string; isChecked: boolean };
   outOfStock: { text: string; isChecked: boolean };
+  discounted: { text: string; isChecked: boolean };
+  nonDiscounted: { text: string; isChecked: boolean };
   priceFilter: { text: string; value: number };
   ratingFilter: { text: string; value: number };
 }
@@ -46,6 +48,8 @@ const Filters = () => {
       // default to showing in‑stock products unless user explicitly changes it
       inStock: { text: "instock", isChecked: getBool("inStock", true) },
       outOfStock: { text: "outofstock", isChecked: getBool("outOfStock", false) },
+      discounted: { text: "discounted", isChecked: getBool("discounted", false) },
+      nonDiscounted: { text: "nonDiscounted", isChecked: getBool("nonDiscounted", false) },
       priceFilter: { text: "price", value: getNum("price", 10000) },
       ratingFilter: { text: "rating", value: getNum("rating", 0) },
     };
@@ -69,6 +73,8 @@ const Filters = () => {
 
     params.set("outOfStock", inputCategory.outOfStock.isChecked.toString());
     params.set("inStock", inputCategory.inStock.isChecked.toString());
+    params.set("discounted", inputCategory.discounted.isChecked.toString());
+    params.set("nonDiscounted", inputCategory.nonDiscounted.isChecked.toString());
     params.set("rating", inputCategory.ratingFilter.value.toString());
     params.set("price", inputCategory.priceFilter.value.toString());
     params.set("sort", sortBy);
@@ -136,6 +142,71 @@ const Filters = () => {
             />
             <span className="label-text text-lg ml-2 text-black">
               Out of stock
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div className="divider"></div>
+
+      {/* Discounted Products */}
+      <div className="flex flex-col gap-y-1">
+        <h3 className="text-xl mb-2">Discounted Products</h3>
+
+        <div className="form-control">
+          <label className="cursor-pointer flex items-center">
+            <input
+              type="checkbox"
+              checked={inputCategory.discounted.isChecked}
+              onChange={() => {
+                const newValue = !inputCategory.discounted.isChecked;
+
+                setInputCategory({
+                  ...inputCategory,
+                  discounted: { text: "discounted", isChecked: newValue },
+                  // Exclusive logic: if we check this, uncheck the other
+                  nonDiscounted: newValue ? { text: "nonDiscounted", isChecked: false } : inputCategory.nonDiscounted
+                });
+
+                posthog.capture("filter_changed", {
+                  filter_type: "discounted",
+                  value: newValue,
+                  component: "Filters",
+                });
+              }}
+              className="checkbox"
+            />
+            <span className="label-text text-lg ml-2 text-black">
+              Discounted
+            </span>
+          </label>
+        </div>
+
+        <div className="form-control">
+          <label className="cursor-pointer flex items-center">
+            <input
+              type="checkbox"
+              checked={inputCategory.nonDiscounted.isChecked}
+              onChange={() => {
+                const newValue = !inputCategory.nonDiscounted.isChecked;
+
+                setInputCategory({
+                  ...inputCategory,
+                  nonDiscounted: { text: "nonDiscounted", isChecked: newValue },
+                  // Exclusive logic: if we check this, uncheck the other
+                  discounted: newValue ? { text: "discounted", isChecked: false } : inputCategory.discounted
+                });
+
+                posthog.capture("filter_changed", {
+                  filter_type: "non_discounted",
+                  value: newValue,
+                  component: "Filters",
+                });
+              }}
+              className="checkbox"
+            />
+            <span className="label-text text-lg ml-2 text-black">
+              Non-Discounted
             </span>
           </label>
         </div>
