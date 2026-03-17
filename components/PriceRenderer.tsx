@@ -4,11 +4,13 @@ interface PriceRendererProps {
   price: number;
   discountedPrice?: number;
   hasDiscount?: boolean;
+  discountType?: string;
+  discountValue?: number;
   color?: string; // e.g. "black" or "white" depending on standard usage
   fontSize?: "sm" | "base" | "lg" | "xl" | "2xl" | "3xl"; // simple scale to allow reuse in larger headings
 }
 
-const PriceRenderer = ({ price, discountedPrice, hasDiscount, color = "black", fontSize = "lg" }: PriceRendererProps) => {
+const PriceRenderer = ({ price, discountedPrice, hasDiscount, discountType, discountValue, color = "black", fontSize = "lg" }: PriceRendererProps) => {
   // Determine standard coloring based on background passed
   const mainColorClass = color === "black" ? "text-black" : "text-white";
   
@@ -28,13 +30,20 @@ const PriceRenderer = ({ price, discountedPrice, hasDiscount, color = "black", f
 
   if (hasDiscount && discountedPrice !== undefined) {
     return (
-      <div className="flex items-center gap-x-2">
+      <div className="flex items-center gap-x-2 flex-wrap">
         <p className={`line-through text-gray-500 ${strikeFontClass}`}>
           ${price}
         </p>
-        <p className={`${mainColorClass} ${mainFontClass} font-semibold`}>
-          ${discountedPrice}
-        </p>
+        <div className="flex items-center gap-x-1.5">
+          <p className={`${mainColorClass} ${mainFontClass} font-semibold`}>
+            ${discountedPrice}
+          </p>
+          {discountType && discountValue !== undefined && (
+            <span className="text-blue-600 text-sm font-semibold">
+              {discountType === "PERCENTAGE" ? `-${discountValue}%` : `$${discountValue} OFF`}
+            </span>
+          )}
+        </div>
       </div>
     );
   }

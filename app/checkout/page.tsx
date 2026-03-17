@@ -513,7 +513,14 @@ const CheckoutPage = () => {
                     className="h-20 w-20 flex-none rounded-md object-cover object-center"
                   />
                   <div className="flex-auto space-y-1">
-                    <h3>{product?.title}</h3>
+                    <h3>
+                      {product?.title}
+                      {product?.hasDiscount && product?.offerName && (
+                        <span className="ml-1.5 text-xs text-gray-400 font-normal">
+                          ({product.offerName})
+                        </span>
+                      )}
+                    </h3>
                     <p className="text-gray-500">x{product?.amount}</p>
                   </div>
                   <p className="flex-none text-base font-medium">

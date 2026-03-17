@@ -9,6 +9,9 @@ export type ProductInCart = {
   amount: number;
   discountedPrice?: number;
   hasDiscount?: boolean;
+  offerName?: string;
+  discountType?: string;
+  discountValue?: number;
 };
 
 export type State = {

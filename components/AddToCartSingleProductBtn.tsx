@@ -28,6 +28,9 @@ const AddToCartSingleProductBtn = ({
       amount: quantityCount,
       discountedPrice: product?.discountedPrice,
       hasDiscount: product?.hasDiscount,
+      offerName: product?.offerName,
+      discountType: product?.discountType,
+      discountValue: product?.discountValue,
     });
 
     calculateTotals();

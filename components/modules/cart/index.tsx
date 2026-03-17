@@ -86,9 +86,18 @@ export const CartModule = () => {
                         price={product.price}
                         discountedPrice={product.discountedPrice}
                         hasDiscount={product.hasDiscount}
+                        discountType={product.discountType}
+                        discountValue={product.discountValue}
                         fontSize="sm"
                       />
                     </div>
+                    {product.offerName && (
+                      <div className="mt-1">
+                        <span className="text-blue-900 font-semibold text-xs inline-block">
+                          [ {product.offerName} ]
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="mt-4 sm:mt-0 sm:pr-9">
@@ -172,32 +181,13 @@ export const CartModule = () => {
             </dt>
             <dd className="text-sm font-medium text-gray-900">$5.00</dd>
           </div>
-          <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-            <dt className="flex text-sm text-gray-600">
-              <span>Tax estimate</span>
-              <a
-                href="#"
-                className="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
-              >
-                <span className="sr-only">
-                  Learn more about how tax is calculated
-                </span>
-                <FaCircleQuestion
-                  className="h-5 w-5"
-                  aria-hidden="true"
-                />
-              </a>
-            </dt>
-            <dd className="text-sm font-medium text-gray-900">
-              ${total / 5}
-            </dd>
-          </div>
+
           <div className="flex items-center justify-between border-t border-gray-200 pt-4">
             <dt className="text-base font-medium text-gray-900">
               Order total
             </dt>
             <dd className="text-base font-medium text-gray-900">
-              ${total === 0 ? 0 : Math.round(total + total / 5 + 5)}
+              ${total === 0 ? 0 : Math.round(total + 5)}
             </dd>
           </div>
         </dl>

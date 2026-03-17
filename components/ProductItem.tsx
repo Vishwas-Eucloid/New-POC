@@ -45,11 +45,9 @@ const ProductItem = ({
         className="relative block"
       >
         {product.discountType && product.discountValue !== undefined && (
-          <div className="absolute top-2 left-2 z-10 bg-red-600 text-white px-2 py-1 rounded-full shadow-sm pointer-events-none">
-            <p className="text-xs font-bold leading-none tracking-wide">
-              {product.discountType === "PERCENTAGE" 
-                ? `-${product.discountValue}%` 
-                : `$${product.discountValue} OFF`}
+          <div className="absolute top-2 left-2 z-10 bg-blue-600 text-white px-2.5 py-1 rounded-full shadow-sm pointer-events-none">
+            <p className="text-xs font-normal leading-none tracking-wide">
+              Sale
             </p>
           </div>
         )}
@@ -87,21 +85,25 @@ const ProductItem = ({
         {sanitize(product.title)}
       </Link>
 
-      {/* Offer Subtitle (Amazon-style Red Tag) */}
-      {product.offerName && (
-        <span className="bg-red-600 text-white font-semibold text-[11px] px-2 py-0.5 rounded-sm mb-1 inline-block truncate max-w-[90%]" title={product.offerName}>
-          {product.offerName}
-        </span>
-      )}
-
       {/* Price */}
-      <PriceRenderer 
+      <PriceRenderer
         price={product.price}
         discountedPrice={product.discountedPrice}
         hasDiscount={product.hasDiscount || !!product.originalPrice} // preserve originalPrice for backward compat if Offers page manually injected it
+        discountType={product.discountType}
+        discountValue={product.discountValue}
         color={color}
         fontSize="lg"
       />
+
+      {/* Offer Subtitle Below Price (Amazon-style Blue Tag) */}
+      {product.offerName && (
+        <div className="flex justify-center w-full mb-1 mt-1">
+          <span className="text-blue-900 font-semibold text-sm inline-block truncate max-w-[90%]" title={product.offerName}>
+            ({product.offerName})
+          </span>
+        </div>
+      )}
 
       {/* CTA */}
       <Link
