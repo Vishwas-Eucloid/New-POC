@@ -79,22 +79,7 @@ const SingleProductPage = async ({ params }: SingleProductPageProps) => {
           <div className="flex flex-col gap-y-7 text-black max-[500px]:text-center">
         
             <h1 className="text-3xl">{sanitize(product?.title)}</h1>
-            <PriceRenderer 
-              price={product?.price} 
-              discountedPrice={product?.discountedPrice} 
-              hasDiscount={product?.hasDiscount} 
-              discountType={product?.discountType}
-              discountValue={product?.discountValue}
-              color="black" 
-              fontSize="2xl" 
-            />
-            {product?.offerName && (
-              <div className="mt-1 mb-2">
-                <span className="text-blue-900 font-semibold text-base inline-block">
-                  [ {product.offerName} ]
-                </span>
-              </div>
-            )}
+            <PriceRenderer price={product?.price} discountedPrice={product?.discountedPrice} hasDiscount={product?.hasDiscount} color="black" fontSize="2xl" />
             <StockAvailabillity stock={94} inStock={product?.inStock} />
             <SingleProductDynamicFields product={product} />
             

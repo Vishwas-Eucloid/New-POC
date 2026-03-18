@@ -65,6 +65,10 @@ app.use(errorLogger);
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
+  'http://new-poc.duckdns.org',
+  'https://new-poc.duckdns.org',
+  'http://www.new-poc.duckdns.org',
+  'https://www.new-poc.duckdns.org',
   process.env.NEXTAUTH_URL,
   process.env.FRONTEND_URL,
 ].filter(Boolean); // Remove undefined values

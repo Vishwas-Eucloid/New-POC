@@ -27,7 +27,7 @@ const Hero = () => {
       cta,
       component: "Hero",
     });
-    router.push("https://new-poc-ten.vercel.app/product/smart-watch-demo");
+    router.push("https://new-poc.duckdns.org/product/smart-watch-demo");
   };
 
   return (

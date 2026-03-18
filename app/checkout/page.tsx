@@ -2,6 +2,7 @@
 import { SectionTitle } from "@/components";
 import { useProductStore } from "../_zustand/store";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
@@ -292,7 +293,7 @@ const CheckoutPage = () => {
 
       // Capture purchase (non-PII — no address or personal fields)
       try {
-        posthog.capture("purchase_completed", {
+        posthog.capture("thank_you_page_final_step", {
           order_id: orderId,
           total: total,
           currency: "USD",
@@ -473,7 +474,18 @@ const CheckoutPage = () => {
 
   return (
     <div className="bg-white">
-      <SectionTitle title="Checkout" path="Home | Cart | Checkout" />
+      <SectionTitle 
+        title="Checkout" 
+        path={
+          <>
+            <Link href="/" className="hover:text-blue-200 transition-colors">Home</Link>
+            <span className="mx-2">|</span>
+            <Link href="/cart" className="hover:text-blue-200 transition-colors">Cart</Link>
+            <span className="mx-2">|</span>
+            <span className="opacity-75">Checkout</span>
+          </>
+        } 
+      />
 
       <div className="hidden h-full w-1/2 bg-white lg:block" aria-hidden="true" />
       <div className="hidden h-full w-1/2 bg-gray-50 lg:block" aria-hidden="true" />
