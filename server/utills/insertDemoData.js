@@ -10,8 +10,8 @@ const demoMerchant = [
     phone: "1234567890",
     address: "123 Demo St, Demo City, DM 12345",
     status: "active",
-    createdAt : new Date(),
-    updatedAt : new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
   }
 ]
 
@@ -226,7 +226,7 @@ const demoCategories = [
   },
   {
     id: "da6413b4-22fd-4fbb-9741-d77580dfdcd5",
-    name: "mouses"
+    name: "mouse"
   },
   {
     id: "ss6412b4-22fd-4fbb-9741-d77580dfdcd2",

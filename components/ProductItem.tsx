@@ -42,7 +42,7 @@ const ProductItem = ({
       <Link
         href={`/product/${product.slug}`}
         onClick={() => handleProductClick("image")}
-        className="relative block"
+        className="relative w-full h-[250px] flex items-center justify-center bg-white"
       >
         {product.discountType && product.discountValue !== undefined && (
           <div className="absolute top-2 left-2 z-10 bg-blue-600 text-white px-2.5 py-1 rounded-full shadow-sm pointer-events-none">
@@ -63,7 +63,7 @@ const ProductItem = ({
           width="0"
           height="0"
           sizes="100vw"
-          className="w-auto h-[300px]"
+          className="w-full h-full object-contain"
           alt={sanitize(product?.title) || "Product image"}
           unoptimized={
             product.mainImage?.startsWith("http://") ||
@@ -99,8 +99,8 @@ const ProductItem = ({
       {/* Offer Subtitle Below Price (Amazon-style Blue Tag) */}
       {product.offerName && (
         <div className="flex justify-center w-full mb-1 mt-1">
-          <span className="text-blue-900 font-semibold text-sm inline-block truncate max-w-[90%]" title={product.offerName}>
-            ({product.offerName})
+          <span className="text-blue-900 font-semibold text-sm inline-block truncate max-w-[90%] italic" title={product.offerName}>
+            {product.offerName}
           </span>
         </div>
       )}

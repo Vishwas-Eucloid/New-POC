@@ -13,6 +13,10 @@ import { sanitize } from "@/lib/sanitize";
 
 // improve readabillity of category text, for example category text "smart-watches" will be "smart watches"
 const improveCategoryText = (text: string): string => {
+  if (text.toLowerCase() === "mouses") {
+    return "Mouse";
+  }
+
   if (text.indexOf("-") !== -1) {
     let textArray = text.split("-");
 
@@ -53,7 +57,7 @@ const ShopPage = async ({ params, searchParams }: { params: Promise<{ slug?: str
               <h2 className="text-2xl font-bold max-sm:text-xl max-[400px]:text-lg uppercase">
                 {categorySlug && categorySlug.length > 0
                   ? sanitize(improveCategoryText(categorySlug))
-                  : "All products"}
+                  : "All Products"}
               </h2>
 
               <SortBy />
