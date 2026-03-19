@@ -13,7 +13,7 @@ export const categoryMenuList = [
   },
   {
     id: 3,
-    title: "Mouses",
+    title: "Mouse",
     src: "/mouse icon.png",
     href: "/shop/mouses"
   },

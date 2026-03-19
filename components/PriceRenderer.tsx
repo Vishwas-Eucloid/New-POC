@@ -39,8 +39,8 @@ const PriceRenderer = ({ price, discountedPrice, hasDiscount, discountType, disc
             ${discountedPrice}
           </p>
           {discountType && discountValue !== undefined && (
-            <span className="text-blue-600 text-sm font-semibold">
-              {discountType === "PERCENTAGE" ? `-${discountValue}%` : `$${discountValue} OFF`}
+            <span className="text-blue-600 text-sm font-semibold italic">
+              ({discountType === "PERCENTAGE" ? `-${discountValue}%` : `$${discountValue} OFF`})
             </span>
           )}
         </div>

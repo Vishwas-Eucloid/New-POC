@@ -13,16 +13,16 @@ import { usePaginationStore } from "@/app/_zustand/paginationStore";
 import posthog from "posthog-js";
 
 const CATEGORY_OPTIONS = [
-  "Smart Phones",
-  "Tablets",
-  "Mouses",
-  "Cameras",
-  "Smart Watches",
-  "Laptops",
-  "PCs",
-  "Printers",
-  "Ear Buds",
-  "Head Phones",
+  { label: "Smart Phones", value: "Smart Phones" },
+  { label: "Tablets", value: "Tablets" },
+  { label: "Mouse", value: "Mouses" },
+  { label: "Cameras", value: "Cameras" },
+  { label: "Smart Watches", value: "Smart Watches" },
+  { label: "Laptops", value: "Laptops" },
+  { label: "PCs", value: "PCs" },
+  { label: "Printers", value: "Printers" },
+  { label: "Ear Buds", value: "Ear Buds" },
+  { label: "Head Phones", value: "Head Phones" },
 ];
 
 interface InputCategory {
@@ -163,8 +163,8 @@ const Filters = () => {
         >
           <option value="">All Categories</option>
           {CATEGORY_OPTIONS.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
+            <option key={cat.value} value={cat.value}>
+              {cat.label}
             </option>
           ))}
         </select>

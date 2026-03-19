@@ -93,8 +93,8 @@ export const CartModule = () => {
                     </div>
                     {product.offerName && (
                       <div className="mt-1">
-                        <span className="text-blue-900 font-semibold text-xs inline-block">
-                          [ {product.offerName} ]
+                        <span className="text-blue-900 font-semibold text-xs inline-block italic">
+                          {product.offerName}
                         </span>
                       </div>
                     )}

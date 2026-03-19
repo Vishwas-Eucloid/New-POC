@@ -1,5 +1,5 @@
 "use client";
-import { SectionTitle } from "@/components";
+import { SectionTitle, PriceRenderer } from "@/components";
 import { useProductStore } from "../_zustand/store";
 import Image from "next/image";
 import Link from "next/link";
@@ -474,8 +474,8 @@ const CheckoutPage = () => {
 
   return (
     <div className="bg-white">
-      <SectionTitle 
-        title="Checkout" 
+      <SectionTitle
+        title="Checkout"
         path={
           <>
             <Link href="/" className="hover:text-blue-200 transition-colors">Home</Link>
@@ -484,7 +484,7 @@ const CheckoutPage = () => {
             <span className="mx-2">|</span>
             <span className="opacity-75">Checkout</span>
           </>
-        } 
+        }
       />
 
       <div className="hidden h-full w-1/2 bg-white lg:block" aria-hidden="true" />
@@ -525,19 +525,24 @@ const CheckoutPage = () => {
                     className="h-20 w-20 flex-none rounded-md object-cover object-center"
                   />
                   <div className="flex-auto space-y-1">
-                    <h3>
-                      {product?.title}
-                      {product?.hasDiscount && product?.offerName && (
-                        <span className="ml-1.5 text-xs text-gray-400 font-normal">
-                          ({product.offerName})
-                        </span>
-                      )}
-                    </h3>
+                    <h3>{product?.title}</h3>
+                    {product?.hasDiscount && product?.offerName && (
+                      <span className="text-blue-600 font-semibold text-xs block mt-0.5 italic">
+                        {product.offerName}
+                      </span>
+                    )}
                     <p className="text-gray-500">x{product?.amount}</p>
                   </div>
-                  <p className="flex-none text-base font-medium">
-                    ${product.hasDiscount && product.discountedPrice !== undefined ? product.discountedPrice : product.price}
-                  </p>
+                  <div className="flex-none pt-1">
+                    <PriceRenderer
+                      price={product.price}
+                      discountedPrice={product.discountedPrice}
+                      hasDiscount={product.hasDiscount}
+                      discountType={product.discountType}
+                      discountValue={product.discountValue}
+                      fontSize="base"
+                    />
+                  </div>
                 </li>
               ))}
             </ul>
@@ -549,7 +554,7 @@ const CheckoutPage = () => {
               </div>
               {totalSavings > 0 && (
                 <div className="flex items-center justify-between">
-                  <dt className="text-gray-600">Offer Applied (Saved)</dt>
+                  <dt className="text-gray-600">Offer Applied </dt>
                   <dd className="text-green-600 font-medium">-${totalSavings}</dd>
                 </div>
               )}
