@@ -10,21 +10,9 @@ import React, { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useSortStore } from "@/app/_zustand/sortStore";
 import { usePaginationStore } from "@/app/_zustand/paginationStore";
+import { categoryMenuList } from "@/lib/utils";
 import posthog from "posthog-js";
 import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
-
-const CATEGORY_OPTIONS = [
-  { label: "Smart Phones", value: "Smart Phones" },
-  { label: "Tablets", value: "Tablets" },
-  { label: "Mouse", value: "Mouses" },
-  { label: "Cameras", value: "Cameras" },
-  { label: "Smart Watches", value: "Smart Watches" },
-  { label: "Laptops", value: "Laptops" },
-  { label: "PCs", value: "PCs" },
-  { label: "Printers", value: "Printers" },
-  { label: "Ear Buds", value: "Ear Buds" },
-  { label: "Head Phones", value: "Head Phones" },
-];
 
 interface InputCategory {
   inStock: { text: string; isChecked: boolean };
@@ -34,6 +22,12 @@ interface InputCategory {
   priceFilter: { text: string; value: number };
   ratingFilter: { text: string; value: number };
 }
+
+const categoryOptions = categoryMenuList.map((item) => ({
+  id: item.id,
+  label: item.title,
+  value: item.href.replace("/shop/", ""),
+}));
 
 const Filters = () => {
   const pathname = usePathname();
@@ -167,8 +161,8 @@ const Filters = () => {
               }}
             >
               <option value="">All Categories</option>
-              {CATEGORY_OPTIONS.map((cat) => (
-                <option key={cat.value} value={cat.value}>
+              {categoryOptions.map((cat) => (
+                <option key={cat.id} value={cat.value}>
                   {cat.label}
                 </option>
               ))}
