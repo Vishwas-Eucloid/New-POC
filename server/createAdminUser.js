@@ -49,6 +49,7 @@ async function createAdminUser() {
         email: email,
         password: hashedPassword,
         role: "admin",
+        registeredAt: new Date(),
       },
     });
 

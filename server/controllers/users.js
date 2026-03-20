@@ -42,6 +42,7 @@ const createUser = asyncHandler(async (request, response) => {
       email,
       password: hashedPassword,
       role: role || "user",
+      registeredAt: new Date(),
     },
   });
   // Exclude password from response

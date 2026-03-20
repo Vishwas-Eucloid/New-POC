@@ -79,6 +79,7 @@ export const authOptions: NextAuthOptions = {
                 role: "user",
                 // OAuth users don't have passwords
                 password: null,
+                registeredAt: new Date(),
               },
             });
           }

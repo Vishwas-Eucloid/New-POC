@@ -37,6 +37,7 @@ export const POST = async (request: Request) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 14);
+    const registeredAt = new Date();
 
     // Create user with proper error handling
     const newUser = await prisma.user.create({
@@ -45,6 +46,7 @@ export const POST = async (request: Request) => {
         email,
         password: hashedPassword,
         role: "user",
+        registeredAt,
       },
     });
 
