@@ -178,6 +178,14 @@ export async function POST(req: NextRequest) {
         image: it.image ?? null,
         unitPrice: Math.round(Number(it.unitPrice ?? it.price ?? 0)),
         quantity,
+
+        originalPrice: it.originalPrice != null ? Math.round(Number(it.originalPrice)) : Math.round(Number(it.unitPrice ?? it.price ?? null)),
+        discountedPrice: it.discountedPrice != null ? Math.round(Number(it.discountedPrice)) : null,
+        hasDiscount: Boolean(it.hasDiscount),
+        offerName: it.offerName ?? null,
+        discountValue: it.discountValue != null ? Number(it.discountValue) : null,
+        discountType: it.discountType ?? null,
+
         metadata: it.metadata ?? null,
         isRemoved: false,
       } as any;

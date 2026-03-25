@@ -47,9 +47,14 @@ export default function CartSyncClient() {
               addToCart({
                 id: item.productId || item.id,
                 title: item.title,
-                price: item.unitPrice,
+                price: item.originalPrice ?? item.unitPrice,
                 image: item.image,
                 amount: item.quantity,
+                hasDiscount: item.hasDiscount,
+                discountedPrice: item.discountedPrice,
+                offerName: item.offerName,
+                discountType: item.discountType,
+                discountValue: item.discountValue,
               });
             });
           calculateTotals();
@@ -86,6 +91,12 @@ export default function CartSyncClient() {
           image: p.image,
           unitPrice: p.price,
           quantity: p.amount,
+          hasDiscount: p.hasDiscount,
+          discountedPrice: p.discountedPrice,
+          originalPrice: p.price,
+          offerName: p.offerName,
+          discountType: p.discountType,
+          discountValue: p.discountValue,
         }));
 
         const res = await fetch("/api/cart", {

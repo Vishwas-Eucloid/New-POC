@@ -243,6 +243,15 @@ model CartItem {
   image     String?
   unitPrice Int // price per unit in smallest currency unit (consistent with Product.price)
   quantity  Int
+  
+  // Discount tracking
+  originalPrice   Int?
+  discountedPrice Int?
+  hasDiscount     Boolean @default(false)
+  appliedOfferId  String?
+  offerName       String?
+  discountValue   Float?
+  discountType    String?
 
   // Optional metadata for variants/options
   metadata Json?
