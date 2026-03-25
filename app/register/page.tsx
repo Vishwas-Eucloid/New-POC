@@ -26,9 +26,18 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    const email = e.target[2].value;
-    const password = e.target[3].value;
-    const confirmPassword = e.target[4].value;
+    const formData = new FormData(e.currentTarget);
+    const firstName = formData.get("name") as string;
+    const lastName = formData.get("lastname") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmpassword") as string;
+    const company = formData.get("company") as string;
+    const addressLine = formData.get("addressLine") as string;
+    const apartment = formData.get("apartment") as string;
+    const city = formData.get("city") as string;
+    const country = formData.get("country") as string;
+    const postalCode = formData.get("postalCode") as string;
 
     if (!isValidEmail(email)) {
       setError("Email is invalid");
@@ -56,8 +65,18 @@ const RegisterPage = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          firstName,
+          lastName,
           email,
           password,
+          address: {
+            company,
+            addressLine,
+            apartment,
+            city,
+            country,
+            postalCode
+          }
         }),
       });
 
@@ -104,7 +123,7 @@ const RegisterPage = () => {
           </h2>
         </div>
 
-        <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-[480px]">
+        <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-[600px]">
           <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div>
@@ -197,6 +216,54 @@ const RegisterPage = () => {
                     required
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
+                </div>
+              </div>
+
+              <div className="mt-8 border-t border-gray-200 pt-8">
+                <h3 className="text-lg font-medium leading-6 text-gray-900 mb-6">Permanent Address</h3>
+                
+                <div className="space-y-6">
+                  <div>
+                    <label htmlFor="company" className="block text-sm font-medium leading-6 text-gray-900">Company (Optional)</label>
+                    <div className="mt-2 text-black">
+                      <input id="company" name="company" type="text" className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="addressLine" className="block text-sm font-medium leading-6 text-gray-900">Address Line *</label>
+                    <div className="mt-2 text-black">
+                      <input id="addressLine" name="addressLine" type="text" required className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="apartment" className="block text-sm font-medium leading-6 text-gray-900">Apartment / Suite (Optional)</label>
+                    <div className="mt-2 text-black">
+                      <input id="apartment" name="apartment" type="text" className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-900">City *</label>
+                      <div className="mt-2 text-black">
+                        <input id="city" name="city" type="text" required className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                      </div>
+                    </div>
+                    <div>
+                      <label htmlFor="country" className="block text-sm font-medium leading-6 text-gray-900">Country *</label>
+                      <div className="mt-2 text-black">
+                        <input id="country" name="country" type="text" required className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                      </div>
+                    </div>
+                    <div>
+                      <label htmlFor="postalCode" className="block text-sm font-medium leading-6 text-gray-900">Postal Code *</label>
+                      <div className="mt-2 text-black">
+                        <input id="postalCode" name="postalCode" type="text" required className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 

@@ -26,7 +26,7 @@ export const POST = async (request: Request) => {
       throw validationResult.error;
     }
 
-    const { email, password } = validationResult.data;
+    const { firstName, lastName, email, password, address } = validationResult.data;
 
     const existingUser = await prisma.user.findFirst({ 
       where: { email } 
@@ -45,6 +45,14 @@ export const POST = async (request: Request) => {
         id: nanoid(),
         email,
         password: hashedPassword,
+        firstName,
+        lastName,
+        company: address.company,
+        addressLine: address.addressLine,
+        apartment: address.apartment,
+        city: address.city,
+        country: address.country,
+        postalCode: address.postalCode,
         role: "user",
         registeredAt,
       },

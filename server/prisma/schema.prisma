@@ -47,6 +47,8 @@ model User {
   id                String              @id @default(uuid())
   email             String              @unique
   password          String?
+  firstName         String?
+  lastName          String?
   role              String?             @default("user")
   registeredAt      DateTime            @default(now())
   Wishlist          Wishlist[]
@@ -54,6 +56,12 @@ model User {
   // Back relation for bulk upload batches
   bulkUploadBatches bulk_upload_batch[] @relation("UserBatches")
   Cart              Cart[]
+  company           String?
+  addressLine       String?
+  apartment         String?
+  city              String?
+  country           String?
+  postalCode        String?
 }
 
 model Customer_order {

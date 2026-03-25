@@ -30,8 +30,72 @@ const CheckoutPage = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [usePermanentAddress, setUsePermanentAddress] = useState(false);
+  const [useDifferentName, setUseDifferentName] = useState(false);
   const { products, total, clearCart } = useProductStore();
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (session?.user?.email) {
+        try {
+          const response = await apiClient.get(`/api/users/email/${session.user.email}`);
+          if (response.ok) {
+            const data = await response.json();
+            setUserProfile(data);
+            
+            // Pre-fill basic details if available
+            setCheckoutForm(prev => ({
+              ...prev,
+              name: data.firstName || prev.name,
+              lastname: data.lastName || prev.lastname,
+              email: data.email || prev.email,
+            }));
+          }
+        } catch (error) {
+          console.error("Failed to fetch user profile:", error);
+        }
+      }
+    };
+    fetchUserProfile();
+  }, [session]);
+
+  const handleUsePermanentAddressToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    setUsePermanentAddress(checked);
+    
+    if (checked && userProfile) {
+      setCheckoutForm(prev => ({
+        ...prev,
+        company: userProfile.company || "",
+        adress: userProfile.addressLine || "",
+        apartment: userProfile.apartment || "",
+        city: userProfile.city || "",
+        country: userProfile.country || "",
+        postalCode: userProfile.postalCode || "",
+      }));
+    }
+  };
+
+  const handleDifferentNameToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    setUseDifferentName(checked);
+    
+    if (checked) {
+      setCheckoutForm(prev => ({
+        ...prev,
+        name: "",
+        lastname: "",
+      }));
+    } else if (userProfile) {
+      setCheckoutForm(prev => ({
+        ...prev,
+        name: userProfile.firstName || prev.name,
+        lastname: userProfile.lastName || prev.lastname,
+      }));
+    }
+  };
 
   // Compute total savings locally based on cart state
   const totalSavings = products.reduce((acc, item) => {
@@ -68,9 +132,9 @@ const CheckoutPage = () => {
       errors.push("Phone number must be at least 10 digits");
     }
 
-    // Company validation
-    if (!checkoutForm.company.trim() || checkoutForm.company.trim().length < 5) {
-      errors.push("Company must be at least 5 characters");
+    // Company validation (Optional)
+    if (checkoutForm.company.trim() && checkoutForm.company.trim().length < 2) {
+      errors.push("Company must be at least 2 characters if provided");
     }
 
     // Address validation
@@ -78,9 +142,9 @@ const CheckoutPage = () => {
       errors.push("Address must be at least 5 characters");
     }
 
-    // Apartment validation (updated to 1 character minimum)
-    if (!checkoutForm.apartment.trim() || checkoutForm.apartment.trim().length < 1) {
-      errors.push("Apartment is required");
+    // Apartment validation (Optional)
+    if (checkoutForm.apartment.trim() && checkoutForm.apartment.trim().length < 1) {
+      errors.push("Apartment must be at least 1 character if provided");
     }
 
     // City validation
@@ -117,9 +181,7 @@ const CheckoutPage = () => {
       "lastname",
       "phone",
       "email",
-      "company",
       "adress",
-      "apartment",
       "city",
       "country",
       "postalCode",
@@ -562,13 +624,9 @@ const CheckoutPage = () => {
                 <dt className="text-gray-600">Shipping</dt>
                 <dd>$5</dd>
               </div>
-              <div className="flex items-center justify-between">
-                <dt className="text-gray-600">Taxes</dt>
-                <dd>${total / 5}</dd>
-              </div>
               <div className="flex items-center justify-between border-t border-gray-200 pt-6">
                 <dt className="text-base">Total</dt>
-                <dd className="text-base">${total === 0 ? 0 : Math.round(total + total / 5 + 5)}</dd>
+                <dd className="text-base">${total === 0 ? 0 : Math.round(total + 5)}</dd>
               </div>
             </dl>
           </div>
@@ -578,9 +636,26 @@ const CheckoutPage = () => {
           <div className="mx-auto max-w-lg lg:max-w-none">
             {/* Contact Information */}
             <section aria-labelledby="contact-info-heading">
-              <h2 id="contact-info-heading" className="text-lg font-medium text-gray-900">
-                Contact information
-              </h2>
+              <div className="flex items-center justify-between mb-2">
+                <h2 id="contact-info-heading" className="text-lg font-medium text-gray-900">
+                  Contact information
+                </h2>
+                {isLoggedIn && userProfile && (
+                  <div className="flex items-center">
+                    <input
+                      id="use-different-name"
+                      name="use-different-name"
+                      type="checkbox"
+                      checked={useDifferentName}
+                      onChange={handleDifferentNameToggle}
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <label htmlFor="use-different-name" className="ml-2 block text-sm text-gray-700 cursor-pointer">
+                      Order for someone else (change name)
+                    </label>
+                  </div>
+                )}
+              </div>
 
               <div className="mt-6">
                 <label htmlFor="name-input" className="block text-sm font-medium text-gray-700">
@@ -600,7 +675,7 @@ const CheckoutPage = () => {
                     name="name-input"
                     autoComplete="given-name"
                     required
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || (isLoggedIn && !!userProfile && !useDifferentName)}
                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
@@ -624,7 +699,7 @@ const CheckoutPage = () => {
                     name="lastname-input"
                     autoComplete="family-name"
                     required
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || (isLoggedIn && !!userProfile && !useDifferentName)}
                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
@@ -698,11 +773,27 @@ const CheckoutPage = () => {
               </div>
             </section>
 
-            {/* Shipping Address */}
+            {/* Permanent Address */}
             <section aria-labelledby="shipping-heading" className="mt-10">
-              <h2 id="shipping-heading" className="text-lg font-medium text-gray-900">
-                Shipping address
+              <h2 id="shipping-heading" className="text-lg font-medium text-gray-900 mb-4">
+                Permanent Address
               </h2>
+              
+              {isLoggedIn && userProfile && (
+                <div className="flex items-center mb-6">
+                  <input
+                    id="use-permanent-address"
+                    name="use-permanent-address"
+                    type="checkbox"
+                    checked={usePermanentAddress}
+                    onChange={handleUsePermanentAddressToggle}
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
+                  <label htmlFor="use-permanent-address" className="ml-2 block text-sm text-gray-900 cursor-pointer">
+                    Use my saved permanent address
+                  </label>
+                </div>
+              )}
 
               <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-3">
                 <div className="sm:col-span-3">
@@ -714,8 +805,7 @@ const CheckoutPage = () => {
                       type="text"
                       id="company"
                       name="company"
-                      required
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || usePermanentAddress}
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                       value={checkoutForm.company}
                       onChange={(e) =>
@@ -739,7 +829,7 @@ const CheckoutPage = () => {
                       name="address"
                       autoComplete="street-address"
                       required
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || usePermanentAddress}
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                       value={checkoutForm.adress}
                       onChange={(e) =>
@@ -754,15 +844,14 @@ const CheckoutPage = () => {
 
                 <div className="sm:col-span-3">
                   <label htmlFor="apartment" className="block text-sm font-medium text-gray-700">
-                    Apartment, suite, etc. * (required)
+                    Apartment, suite, etc. (Optional)
                   </label>
                   <div className="mt-1">
                     <input
                       type="text"
                       id="apartment"
                       name="apartment"
-                      required
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || usePermanentAddress}
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                       value={checkoutForm.apartment}
                       onChange={(e) =>
@@ -786,7 +875,7 @@ const CheckoutPage = () => {
                       name="city"
                       autoComplete="address-level2"
                       required
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || usePermanentAddress}
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                       value={checkoutForm.city}
                       onChange={(e) =>
@@ -810,7 +899,7 @@ const CheckoutPage = () => {
                       name="region"
                       autoComplete="address-level1"
                       required
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || usePermanentAddress}
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                       value={checkoutForm.country}
                       onChange={(e) =>
@@ -834,7 +923,7 @@ const CheckoutPage = () => {
                       name="postal-code"
                       autoComplete="postal-code"
                       required
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || usePermanentAddress}
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                       value={checkoutForm.postalCode}
                       onChange={(e) =>
