@@ -2,7 +2,7 @@
 // Role of the component: Button for adding product to the cart on the single product page
 // Name of the component: AddToCartSingleProductBtn.tsx
 // Developer: Aleksandar Kuzmanovic
-// Version: 1.1 (PostHog tracking added)
+// Version: 1.2 (GTM dataLayer added)
 // *********************
 
 "use client";
@@ -40,14 +40,25 @@ const AddToCartSingleProductBtn = ({
     toast.success("Product added to the cart");
 
     // 2️⃣ Analytics (PostHog)
-    posthog.capture("add_to_cart", withIsLoggedIn({
+    const eventPayload = withIsLoggedIn({
       product_id: product?.id,
       product_name: product?.title,
       price: product?.price,
       quantity_added: quantityCount,
       value: product?.price * quantityCount,
       source: "single_product_page",
-    }, isLoggedIn));
+    }, isLoggedIn);
+
+    posthog.capture("add_to_cart", eventPayload);
+
+    // 3️⃣ GTM dataLayer push (NEW)
+    if (typeof window !== "undefined") {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "add_to_cart",
+        ...eventPayload,
+      });
+    }
   };
 
   return (
