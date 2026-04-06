@@ -2,7 +2,7 @@
 // Role of the component: SortBy
 // Name of the component: SortBy.tsx
 // Developer: Aleksandar Kuzmanovic
-// Version: 1.1 (PostHog tracking added)
+// Version: 1.2 (GTM dataLayer added)
 // *********************
 
 "use client";
@@ -13,17 +13,27 @@ import posthog from "posthog-js";
 import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const SortBy = () => {
-  // getting values from Zustand sort store
   const { sortBy, changeSortBy } = useSortStore();
   const isLoggedIn = useIsLoggedInValue();
 
   const handleSortChange = (newSort: string) => {
     if (newSort !== sortBy) {
-      posthog.capture("sort_changed", withIsLoggedIn({
+      const sortPayload = withIsLoggedIn({
         from_sort: sortBy,
         to_sort: newSort,
         component: "SortBy",
-      }, isLoggedIn));
+      }, isLoggedIn);
+
+      posthog.capture("sort_changed", sortPayload);
+
+      // 🔹 GTM dataLayer push (NEW)
+      if (typeof window !== "undefined") {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: "sort_changed",
+          ...sortPayload,
+        });
+      }
     }
 
     changeSortBy(newSort);

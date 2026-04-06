@@ -2,7 +2,7 @@
 // Role of the component: Quantity input for incrementing and decrementing product quantity on the single product page
 // Name of the component: QuantityInput.tsx
 // Developer: Aleksandar Kuzmanovic
-// Version: 1.1 (PostHog tracking added)
+// Version: 1.2 (GTM dataLayer added)
 // *********************
 
 "use client";
@@ -27,23 +27,45 @@ const QuantityInput = ({
     if (actionName === "plus") {
       const newValue = quantityCount + 1;
 
-      posthog.capture("quantity_changed", withIsLoggedIn({
+      const incrementPayload = withIsLoggedIn({
         action: "increment",
         from_quantity: quantityCount,
         to_quantity: newValue,
         component: "QuantityInput",
-      }, isLoggedIn));
+      }, isLoggedIn);
+
+      posthog.capture("quantity_changed", incrementPayload);
+
+      // 🔹 GTM dataLayer push (NEW)
+      if (typeof window !== "undefined") {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: "quantity_changed",
+          ...incrementPayload,
+        });
+      }
 
       setQuantityCount(newValue);
     } else if (actionName === "minus" && quantityCount !== 1) {
       const newValue = quantityCount - 1;
 
-      posthog.capture("quantity_changed", withIsLoggedIn({
+      const decrementPayload = withIsLoggedIn({
         action: "decrement",
         from_quantity: quantityCount,
         to_quantity: newValue,
         component: "QuantityInput",
-      }, isLoggedIn));
+      }, isLoggedIn);
+
+      posthog.capture("quantity_changed", decrementPayload);
+
+      // 🔹 GTM dataLayer push (NEW)
+      if (typeof window !== "undefined") {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: "quantity_changed",
+          ...decrementPayload,
+        });
+      }
 
       setQuantityCount(newValue);
     }

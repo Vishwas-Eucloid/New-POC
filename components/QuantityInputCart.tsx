@@ -2,7 +2,7 @@
 // Role of the component: Quantity input for incrementing and decrementing product quantity on the cart page
 // Name of the component: QuantityInputCart.tsx
 // Developer: Aleksandar Kuzmanovic
-// Version: 1.1 (PostHog tracking added)
+// Version: 1.2 (GTM dataLayer added)
 // *********************
 
 "use client";
@@ -22,7 +22,7 @@ const QuantityInputCart = ({ product }: { product: ProductInCart }) => {
     if (actionName === "plus") {
       const newValue = quantityCount + 1;
 
-      posthog.capture("cart_quantity_changed", withIsLoggedIn({
+      const incrementPayload = withIsLoggedIn({
         action: "increment",
         from_quantity: quantityCount,
         to_quantity: newValue,
@@ -30,7 +30,18 @@ const QuantityInputCart = ({ product }: { product: ProductInCart }) => {
         product_name: product.title,
         price: product.price,
         component: "QuantityInputCart",
-      }, isLoggedIn));
+      }, isLoggedIn);
+
+      posthog.capture("cart_quantity_changed", incrementPayload);
+
+      // 🔹 GTM dataLayer push (NEW)
+      if (typeof window !== "undefined") {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: "cart_quantity_changed",
+          ...incrementPayload,
+        });
+      }
 
       setQuantityCount(newValue);
       updateCartAmount(product.id, newValue);
@@ -38,7 +49,7 @@ const QuantityInputCart = ({ product }: { product: ProductInCart }) => {
     } else if (actionName === "minus" && quantityCount !== 1) {
       const newValue = quantityCount - 1;
 
-      posthog.capture("cart_quantity_changed", withIsLoggedIn({
+      const decrementPayload = withIsLoggedIn({
         action: "decrement",
         from_quantity: quantityCount,
         to_quantity: newValue,
@@ -46,7 +57,18 @@ const QuantityInputCart = ({ product }: { product: ProductInCart }) => {
         product_name: product.title,
         price: product.price,
         component: "QuantityInputCart",
-      }, isLoggedIn));
+      }, isLoggedIn);
+
+      posthog.capture("cart_quantity_changed", decrementPayload);
+
+      // 🔹 GTM dataLayer push (NEW)
+      if (typeof window !== "undefined") {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: "cart_quantity_changed",
+          ...decrementPayload,
+        });
+      }
 
       setQuantityCount(newValue);
       updateCartAmount(product.id, newValue);
