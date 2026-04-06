@@ -2,7 +2,7 @@
 // Role of the component: Pagination for navigating the shop page
 // Name of the component: Pagination.tsx
 // Developer: Aleksandar Kuzmanovic
-// Version: 1.1 (PostHog tracking added)
+// Version: 1.2 (GTM dataLayer added)
 // *********************
 
 "use client";
@@ -17,23 +17,45 @@ const Pagination = () => {
   const isLoggedIn = useIsLoggedInValue();
 
   const handleNext = () => {
-    posthog.capture("pagination_clicked", withIsLoggedIn({
+    const nextPayload = withIsLoggedIn({
       direction: "next",
       from_page: page,
       to_page: page + 1,
       component: "Pagination",
-    }, isLoggedIn));
+    }, isLoggedIn);
+
+    posthog.capture("pagination_clicked", nextPayload);
+
+    // 🔹 GTM dataLayer push (NEW)
+    if (typeof window !== "undefined") {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "pagination_clicked",
+        ...nextPayload,
+      });
+    }
 
     incrementPage();
   };
 
   const handlePrevious = () => {
-    posthog.capture("pagination_clicked", withIsLoggedIn({
+    const prevPayload = withIsLoggedIn({
       direction: "previous",
       from_page: page,
       to_page: page - 1,
       component: "Pagination",
-    }, isLoggedIn));
+    }, isLoggedIn);
+
+    posthog.capture("pagination_clicked", prevPayload);
+
+    // 🔹 GTM dataLayer push (NEW)
+    if (typeof window !== "undefined") {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "pagination_clicked",
+        ...prevPayload,
+      });
+    }
 
     decrementPage();
   };
