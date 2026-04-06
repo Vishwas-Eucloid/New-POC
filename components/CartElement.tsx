@@ -2,7 +2,7 @@
 // Role of the component: Cart icon and quantity that will be located in the header
 // Name of the component: CartElement.tsx
 // Developer: Aleksandar Kuzmanovic
-// Version: 1.1 (PostHog tracking added)
+// Version: 1.2 (GTM dataLayer added)
 // *********************
 
 "use client";
@@ -19,12 +19,23 @@ const CartElement = () => {
   const isLoggedIn = useIsLoggedInValue()
 
   const handleCartClick = () => {
-    posthog.capture('cart_icon_clicked', withIsLoggedIn({
+    const cartClickPayload = withIsLoggedIn({
       action: "GNB_interaction",
       cart_quantity: allQuantity,
       component: 'CartElement',
       destination: '/cart',
-    }, isLoggedIn))
+    }, isLoggedIn)
+
+    posthog.capture('cart_icon_clicked', cartClickPayload)
+
+    // 🔹 GTM dataLayer push (NEW)
+    if (typeof window !== "undefined") {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "cart_icon_clicked",
+        ...cartClickPayload,
+      });
+    }
   }
 
   return (

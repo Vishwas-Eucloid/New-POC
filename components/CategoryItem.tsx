@@ -2,7 +2,7 @@
 // Role of the component: Category Item that will display category icon, category name and link to the category
 // Name of the component: CategoryItem.tsx
 // Developer: Aleksandar Kuzmanovic
-// Version: 1.1 (PostHog tracking added)
+// Version: 1.2 (GTM dataLayer added)
 // *********************
 
 "use client";
@@ -22,21 +22,28 @@ const CategoryItem = ({ title, children, href }: CategoryItemProps) => {
   const isLoggedIn = useIsLoggedInValue();
 
   const handleCategoryClick = () => {
-    posthog.capture("category_clicked", withIsLoggedIn({
+    const categoryPayload = withIsLoggedIn({
       category_name: title,
       destination: href,
       component: "CategoryItem",
-    }, isLoggedIn));
+    }, isLoggedIn);
+
+    posthog.capture("category_clicked", categoryPayload);
+
+    // 🔹 GTM dataLayer push (NEW)
+    if (typeof window !== "undefined") {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "category_clicked",
+        ...categoryPayload,
+      });
+    }
   };
 
-  // derive slug from the href path so we can also include it as a query
-  // parameter; this gives us a second source for the category when the
-  // catch‑all param is ever dropped during navigation.
   const slug = href.split("/").filter(Boolean).pop() || "";
 
   return (
     <Link
-      // object-form href lets us provide both pathname and query
       href={{
         pathname: href,
         query: { category: slug },

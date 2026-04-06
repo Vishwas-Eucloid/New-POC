@@ -2,7 +2,7 @@
 // Role of the component: Product item component 
 // Name of the component: ProductItem.tsx
 // Developer: Aleksandar Kuzmanovic
-// Version: 1.2 (Click-only analytics)
+// Version: 1.3 (GTM dataLayer added)
 // *********************
 
 "use client";
@@ -27,16 +27,27 @@ const ProductItem = ({
   const handleProductClick = (
     click_source: "image" | "title" | "cta"
   ) => {
-    posthog.capture("product_clicked", withIsLoggedIn({
+    const productClickPayload = withIsLoggedIn({
       product_id: product.id,
       product_slug: product.slug,
       product_name: product.title,
       price: product.price,
-      currency: "USD", // change if needed
+      currency: "USD",
       click_source,
       source: "product_grid",
       component: "ProductItem",
-    }, isLoggedIn));
+    }, isLoggedIn);
+
+    posthog.capture("product_clicked", productClickPayload);
+
+    // 🔹 GTM dataLayer push (NEW)
+    if (typeof window !== "undefined") {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "product_clicked",
+        ...productClickPayload,
+      });
+    }
   };
 
   return (
@@ -94,14 +105,14 @@ const ProductItem = ({
       <PriceRenderer
         price={product.price}
         discountedPrice={product.discountedPrice}
-        hasDiscount={product.hasDiscount || !!product.originalPrice} // preserve originalPrice for backward compat if Offers page manually injected it
+        hasDiscount={product.hasDiscount || !!product.originalPrice}
         discountType={product.discountType}
         discountValue={product.discountValue}
         color={color}
         fontSize="lg"
       />
 
-      {/* Offer Subtitle Below Price (Amazon-style Blue Tag) */}
+      {/* Offer Subtitle */}
       {product.offerName && (
         <div className="flex justify-center w-full mb-1 mt-1">
           <span className="text-blue-900 font-semibold text-sm inline-block truncate max-w-[90%] italic" title={product.offerName}>

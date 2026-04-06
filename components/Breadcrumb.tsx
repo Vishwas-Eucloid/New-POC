@@ -40,24 +40,35 @@ const Breadcrumb = () => {
   }, [session]);
 
   const trackBreadcrumbClick = (
-    label: string,
-    destination: string,
-    position: number
-  ) => {
-    const effectiveSessionId =
-      (session as any)?.sessionId ?? guestSessionId ?? null;
+  label: string,
+  destination: string,
+  position: number
+) => {
+  const effectiveSessionId =
+    (session as any)?.sessionId ?? guestSessionId ?? null;
 
-    const userId = session?.user?.id ?? null;
+  const userId = session?.user?.id ?? null;
 
-    posthog.capture("breadcrumb_clicked", withIsLoggedIn({
-      label,
-      destination,
-      position,
-      component: "Breadcrumb",
-      sessionId: effectiveSessionId,
-      userId,
-    }, isLoggedIn));
-  };
+  const breadcrumbPayload = withIsLoggedIn({
+    label,
+    destination,
+    position,
+    component: "Breadcrumb",
+    sessionId: effectiveSessionId,
+    userId,
+  }, isLoggedIn);
+
+  posthog.capture("breadcrumb_clicked", breadcrumbPayload);
+
+  // 🔹 GTM dataLayer push (NEW)
+  if (typeof window !== "undefined") {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "breadcrumb_clicked",
+      ...breadcrumbPayload,
+    });
+  }
+};
 
   const getLastCrumb = () => {
     if (pathname === "/offers") {

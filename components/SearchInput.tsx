@@ -2,7 +2,7 @@
 // Role of the component: Search input element located in the header but it can be used anywhere in your application
 // Name of the component: SearchInput.tsx
 // Developer: Aleksandar Kuzmanovic
-// Version: 1.1 (PostHog tracking added)
+// Version: 1.2 (GTM dataLayer added)
 // *********************
 
 "use client";
@@ -25,13 +25,24 @@ const SearchInput = () => {
     const sanitizedSearch = sanitize(searchInput);
 
     // 🔹 Analytics
-    posthog.capture("search_performed", withIsLoggedIn({
+    const searchPayload = withIsLoggedIn({
       action: "GNB_interaction",
       query: sanitizedSearch,
       query_length: sanitizedSearch.length,
       component: "SearchInput",
       source: "header",
-    }, isLoggedIn));
+    }, isLoggedIn);
+
+    posthog.capture("search_performed", searchPayload);
+
+    // 🔹 GTM dataLayer push (NEW)
+    if (typeof window !== "undefined") {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "search_performed",
+        ...searchPayload,
+      });
+    }
 
     router.push(`/search?search=${encodeURIComponent(sanitizedSearch)}`);
     setSearchInput("");
